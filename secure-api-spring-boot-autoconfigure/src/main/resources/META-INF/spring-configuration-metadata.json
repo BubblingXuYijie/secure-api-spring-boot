@@ -1,0 +1,106 @@
+{
+  "groups": [
+    {
+      "name": "secure-api",
+      "type": "icu.xuyijie.secureapi.model.SecureApiProperties",
+      "sourceType": "icu.xuyijie.secureapi.model.SecureApiProperties"
+    }
+  ],
+  "properties": [
+    {
+      "name": "secure-api.enable",
+      "type": "java.lang.Boolean",
+      "description": "是否开启接口加解密功能",
+      "sourceType": "icu.xuyijie.secureapi.model.SecureApiProperties",
+      "defaultValue": false
+    },
+    {
+      "name": "secure-api.show-log",
+      "type": "java.lang.Boolean",
+      "description": "是否打印加解密结果日志",
+      "sourceType": "icu.xuyijie.secureapi.model.SecureApiProperties",
+      "defaultValue": false
+    },
+    {
+      "name": "secure-api.mode",
+      "type": "icu.xuyijie.secureapi.model.SecureApiProperties$Mode",
+      "description": "加密模式",
+      "sourceType": "icu.xuyijie.secureapi.model.SecureApiProperties",
+      "defaultValue": false
+    },
+    {
+      "name": "secure-api.cipher-algorithm",
+      "type": "icu.xuyijie.secureapi.cipher.CipherAlgorithmEnum",
+      "description": "加密算法",
+      "sourceType": "icu.xuyijie.secureapi.model.SecureApiProperties",
+      "defaultValue": "AES_ECB_PKCS5"
+    },
+    {
+      "name": "secure-api.session-key-cipher-algorithm",
+      "type": "icu.xuyijie.secureapi.cipher.CipherAlgorithmEnum",
+      "description": "会话密钥算法",
+      "sourceType": "icu.xuyijie.secureapi.model.SecureApiProperties",
+      "defaultValue": "AES_ECB_PKCS5"
+    },
+    {
+      "name": "secure-api.key",
+      "type": "java.lang.String",
+      "description": "对称加密key",
+      "sourceType": "icu.xuyijie.secureapi.model.SecureApiProperties"
+    },
+    {
+      "name": "secure-api.iv",
+      "type": "java.lang.String",
+      "description": "对称加密CBC模式偏移量",
+      "sourceType": "icu.xuyijie.secureapi.model.SecureApiProperties"
+    },
+    {
+      "name": "secure-api.public-key",
+      "type": "java.lang.String",
+      "description": "RSA算法时需要配置的公钥",
+      "sourceType": "icu.xuyijie.secureapi.model.SecureApiProperties"
+    },
+    {
+      "name": "secure-api.private-key",
+      "type": "java.lang.String",
+      "description": "RSA算法时需要配置的私钥",
+      "sourceType": "icu.xuyijie.secureapi.model.SecureApiProperties"
+    },
+    {
+      "name": "secure-api.encrypt-url",
+      "type": "icu.xuyijie.secureapi.model.SecureApiProperties$UrlPattern",
+      "description": "加密url配置",
+      "sourceType": "icu.xuyijie.secureapi.model.SecureApiProperties"
+    },
+    {
+      "name": "secure-api.decrypt-url",
+      "type": "icu.xuyijie.secureapi.model.SecureApiProperties$UrlPattern",
+      "description": "解密url配置",
+      "sourceType": "icu.xuyijie.secureapi.model.SecureApiProperties"
+    },
+    {
+      "name": "secure-api.encrypt-url.include-urls",
+      "type": "java.util.List",
+      "description": "包含url",
+      "sourceType": "icu.xuyijie.secureapi.model.SecureApiProperties"
+    },
+    {
+      "name": "secure-api.encrypt-url.exclude-urls",
+      "type": "java.util.List",
+      "description": "不包含url",
+      "sourceType": "icu.xuyijie.secureapi.model.SecureApiProperties"
+    },
+    {
+      "name": "secure-api.decrypt-url.include-urls",
+      "type": "java.util.List",
+      "description": "包含url",
+      "sourceType": "icu.xuyijie.secureapi.model.SecureApiProperties"
+    },
+    {
+      "name": "secure-api.decrypt-url.exclude-urls",
+      "type": "java.util.List",
+      "description": "不包含url",
+      "sourceType": "icu.xuyijie.secureapi.model.SecureApiProperties"
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+secure-api:
+  enabled: true
+  show-log: true
+  cipher-algorithm: rsa_ecb_sha256
+  encrypt-url:
+    include-urls: /**
+  decrypt-url:
+    include-urls: /**
