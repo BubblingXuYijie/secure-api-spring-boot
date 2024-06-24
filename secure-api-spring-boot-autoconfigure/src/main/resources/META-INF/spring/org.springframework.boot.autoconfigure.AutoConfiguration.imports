@@ -2,4 +2,5 @@ icu.xuyijie.secureapi.handler.SecureApiResponseHandler
 icu.xuyijie.secureapi.handler.SecureApiRequestHandler
 icu.xuyijie.secureapi.interceptor.SecureApiEncryptPathInterceptor
 icu.xuyijie.secureapi.interceptor.SecureApiDecryptPathInterceptor
+icu.xuyijie.secureapi.handler.SecureApiArgumentResolver
 icu.xuyijie.secureapi.config.SecureApiWebConfig

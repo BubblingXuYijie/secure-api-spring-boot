@@ -18,6 +18,12 @@ import org.springframework.web.bind.annotation.RestController;
 @EncryptApi
 @DecryptApi
 public class TestController {
+    @RequestMapping("/testParam")
+    public void testParam(String id, String name) {
+        System.out.println(id);
+        System.out.println(name);
+    }
+
     @RequestMapping("/testResponse")
     public ResultEntity<String> testResponse() {
         return ResultEntity.success("哈哈哈");

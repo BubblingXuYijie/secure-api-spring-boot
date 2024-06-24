@@ -49,6 +49,10 @@ public class SecureApiResponseHandler implements ResponseBodyAdvice<Object> {
     @Override
     public Object beforeBodyWrite(Object body, MethodParameter returnType, MediaType selectedContentType, Class<? extends HttpMessageConverter<?>> selectedConverterType, ServerHttpRequest request, ServerHttpResponse response) {
         try {
+            // 方法返回值为void不处理
+            if (body == null) {
+                return null;
+            }
             String bodyJson = new ObjectMapper().writeValueAsString(body);
             String encrypt = CipherModeHandler.handleEncryptMode(bodyJson, secureApiPropertiesConfig);
             if (secureApiPropertiesConfig.isShowLog()) {

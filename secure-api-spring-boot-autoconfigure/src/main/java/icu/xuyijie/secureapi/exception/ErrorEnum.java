@@ -16,6 +16,7 @@ public enum ErrorEnum {
     DECRYPT_ERROR("解密失败，请检查密文或加密key和解密key是否相同"),
     RSA_ENCRYPT_ERROR("RSA加密失败"),
     RSA_DECRYPT_ERROR("RSA解密失败，请检查密文或公钥和私钥匹配情况"),
+    SESSION_KEY_EMPTY("会话密钥为空"),
     SESSION_KEY_DECRYPT_ERROR("会话密钥解密失败，请检查密文或公钥和私钥匹配情况"),
     KEY_ERROR("公钥或私钥错误"),
     KEY_CREATE_ERROR("获取密钥失败"),

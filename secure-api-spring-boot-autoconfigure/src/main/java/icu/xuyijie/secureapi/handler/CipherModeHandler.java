@@ -5,6 +5,7 @@ import icu.xuyijie.secureapi.exception.ErrorEnum;
 import icu.xuyijie.secureapi.exception.SecureApiException;
 import icu.xuyijie.secureapi.model.SecureApiProperties;
 import icu.xuyijie.secureapi.model.SecureApiPropertiesConfig;
+import org.springframework.util.StringUtils;
 
 /**
  * @author 徐一杰
@@ -44,9 +45,13 @@ class CipherModeHandler {
         CipherAlgorithmEnum cipherAlgorithmEnum = secureApiPropertiesConfig.getCipherAlgorithmEnum();
         // 如果是会话密钥模式
         if (SecureApiProperties.Mode.SESSION_KEY == secureApiPropertiesConfig.getMode()) {
+            String sessionKey = secureApiPropertiesConfig.getKey();
+            if (!StringUtils.hasText(sessionKey)) {
+                throw new SecureApiException(ErrorEnum.SESSION_KEY_EMPTY);
+            }
             // 使用RSA私钥解密会话密钥
             try {
-                String decryptSessionKey = cipherAlgorithmEnum.decrypt(secureApiPropertiesConfig.getKey(), secureApiPropertiesConfig);
+                String decryptSessionKey = cipherAlgorithmEnum.decrypt(sessionKey, secureApiPropertiesConfig);
                 secureApiPropertiesConfig.setKey(decryptSessionKey);
             } catch (SecureApiException e) {
                 throw new SecureApiException(ErrorEnum.SESSION_KEY_DECRYPT_ERROR);

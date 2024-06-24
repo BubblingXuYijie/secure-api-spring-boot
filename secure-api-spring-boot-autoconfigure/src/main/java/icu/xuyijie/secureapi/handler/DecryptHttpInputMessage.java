@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 /**
  * @author 徐一杰
  * @date 2024/6/19 0:13
- * @description 解密接口参数
+ * @description 解密接口参数，这里选择实现HttpInputMessage来处理body参数，因为用拦截器处理body需要额外代码处理流只能读取一次的问题
  */
 public class DecryptHttpInputMessage implements HttpInputMessage {
     private static final Logger log = LoggerFactory.getLogger(DecryptHttpInputMessage.class);

@@ -381,7 +381,7 @@ public class CipherUtils {
      * @return Base64
      */
     private String byte2Base64(byte[] bytes) {
-        return Base64.getEncoder().encodeToString(bytes);
+        return Base64.getUrlEncoder().encodeToString(bytes);
     }
 
     /**
@@ -391,7 +391,7 @@ public class CipherUtils {
      * @return 字节数组
      */
     private byte[] base642Byte(String base64Str) {
-        return Base64.getDecoder().decode(base64Str);
+        return Base64.getUrlDecoder().decode(base64Str);
     }
 
 }

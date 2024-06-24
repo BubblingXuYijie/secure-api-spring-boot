@@ -1,10 +1,12 @@
 package icu.xuyijie.secureapi.config;
 
+import icu.xuyijie.secureapi.handler.SecureApiArgumentResolver;
 import icu.xuyijie.secureapi.interceptor.SecureApiDecryptPathInterceptor;
 import icu.xuyijie.secureapi.interceptor.SecureApiEncryptPathInterceptor;
 import icu.xuyijie.secureapi.model.SecureApiProperties;
 import icu.xuyijie.secureapi.model.SecureApiPropertiesConfig;
 import org.springframework.boot.SpringBootConfiguration;
+import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -16,17 +18,19 @@ import java.util.Optional;
 /**
  * @author 徐一杰
  * @date 2024/6/20 17:13
- * @description 拦截器配置
+ * @description WebMvc配置
  */
 @SpringBootConfiguration
 public class SecureApiWebConfig implements WebMvcConfigurer {
     private final SecureApiEncryptPathInterceptor secureApiEncryptPathInterceptor;
     private final SecureApiDecryptPathInterceptor secureApiDecryptPathInterceptor;
+    private final SecureApiArgumentResolver secureApiArgumentResolver;
     private final SecureApiPropertiesConfig secureApiPropertiesConfig;
 
-    public SecureApiWebConfig(SecureApiEncryptPathInterceptor secureApiEncryptPathInterceptor, SecureApiDecryptPathInterceptor secureApiDecryptPathInterceptor, SecureApiPropertiesConfig secureApiPropertiesConfig) {
+    public SecureApiWebConfig(SecureApiEncryptPathInterceptor secureApiEncryptPathInterceptor, SecureApiDecryptPathInterceptor secureApiDecryptPathInterceptor, SecureApiArgumentResolver secureApiArgumentResolver, SecureApiPropertiesConfig secureApiPropertiesConfig) {
         this.secureApiEncryptPathInterceptor = secureApiEncryptPathInterceptor;
         this.secureApiDecryptPathInterceptor = secureApiDecryptPathInterceptor;
+        this.secureApiArgumentResolver = secureApiArgumentResolver;
         this.secureApiPropertiesConfig = secureApiPropertiesConfig;
     }
 
@@ -55,4 +59,8 @@ public class SecureApiWebConfig implements WebMvcConfigurer {
         }
     }
 
+    @Override
+    public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
+        resolvers.add(secureApiArgumentResolver);
+    }
 }
