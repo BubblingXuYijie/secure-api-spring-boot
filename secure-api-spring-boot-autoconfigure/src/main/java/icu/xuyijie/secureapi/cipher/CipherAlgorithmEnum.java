@@ -314,7 +314,7 @@ public enum CipherAlgorithmEnum {
 
     private static void generateEcbKeyIfAbsent(CipherUtils cipherUtils, SecureApiPropertiesConfig secureApiPropertiesConfig) {
         if (!StringUtils.hasText(secureApiPropertiesConfig.getKey())) {
-            String randomSecreteKey = cipherUtils.getRandomSecreteKey("1");
+            String randomSecreteKey = cipherUtils.getRandomSecreteKey();
             log.info("\n您未配置接口加解密key，生成随机key，请妥善保存：{}", randomSecreteKey);
             secureApiPropertiesConfig.setKey(randomSecreteKey);
         }
@@ -322,12 +322,12 @@ public enum CipherAlgorithmEnum {
 
     private static void generateCbcKeyIfAbsent(CipherUtils cipherUtils, SecureApiPropertiesConfig secureApiPropertiesConfig) {
         if (!StringUtils.hasText(secureApiPropertiesConfig.getKey())) {
-            String randomSecreteKey = cipherUtils.getRandomSecreteKey("1");
+            String randomSecreteKey = cipherUtils.getRandomSecreteKey();
             log.info("\n您未配置接口加解密key，生成随机key，请妥善保存\nkey：{}", randomSecreteKey);
             secureApiPropertiesConfig.setKey(randomSecreteKey);
         }
         if (!StringUtils.hasText(secureApiPropertiesConfig.getIv())) {
-            String randomIv = cipherUtils.getRandomIv("1");
+            String randomIv = cipherUtils.getRandomIv();
             log.info("\n您未配置接口加解密iv，生成随机iv，请妥善保存\niv：{}", randomIv);
             secureApiPropertiesConfig.setIv(randomIv);
         }
@@ -335,7 +335,7 @@ public enum CipherAlgorithmEnum {
 
     private static void generateRsaKeyIfAbsent(CipherUtils cipherUtils, SecureApiPropertiesConfig secureApiPropertiesConfig) {
         if (!StringUtils.hasText(secureApiPropertiesConfig.getPublicKey()) || !StringUtils.hasText(secureApiPropertiesConfig.getPrivateKey())) {
-            RsaKeyPair rsaKeyPair = cipherUtils.getRsaKeyPair("1");
+            RsaKeyPair rsaKeyPair = cipherUtils.getRsaKeyPair();
             secureApiPropertiesConfig.setPublicKey(rsaKeyPair.getPublicKey());
             secureApiPropertiesConfig.setPrivateKey(rsaKeyPair.getPrivateKey());
             log.info("\n您未配置接口加解密密钥对，生成随机密钥对，请妥善保存\n公钥：{}\n私钥：{}", rsaKeyPair.getPublicKey(), rsaKeyPair.getPrivateKey());
