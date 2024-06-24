@@ -2,11 +2,9 @@ package icu.xuyijie.controller;
 
 import icu.xuyijie.entity.ResultEntity;
 import icu.xuyijie.secureapi.annotation.DecryptApi;
+import icu.xuyijie.secureapi.annotation.DecryptParam;
 import icu.xuyijie.secureapi.annotation.EncryptApi;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * @author 徐一杰
@@ -19,7 +17,8 @@ import org.springframework.web.bind.annotation.RestController;
 @DecryptApi
 public class TestController {
     @RequestMapping("/testParam")
-    public void testParam(String id, String name) {
+    public void testParam(@RequestHeader(required = false) String a, String id, @DecryptParam(name = "name", defaultValue = "徐一杰") String name) {
+        System.out.println(a);
         System.out.println(id);
         System.out.println(name);
     }

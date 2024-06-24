@@ -25,6 +25,9 @@ class CipherModeHandler {
      * @return 密文
      */
     public static String handleEncryptMode(String content, SecureApiPropertiesConfig secureApiPropertiesConfig) {
+        if (!StringUtils.hasText(content)) {
+            return content;
+        }
         CipherAlgorithmEnum cipherAlgorithmEnum = secureApiPropertiesConfig.getCipherAlgorithmEnum();
         // 如果是会话密钥模式
         if (SecureApiProperties.Mode.SESSION_KEY == secureApiPropertiesConfig.getMode()) {
@@ -42,6 +45,9 @@ class CipherModeHandler {
      * @return 明文
      */
     public static String handleDecryptMode(String content, SecureApiPropertiesConfig secureApiPropertiesConfig) {
+        if (!StringUtils.hasText(content)) {
+            return content;
+        }
         CipherAlgorithmEnum cipherAlgorithmEnum = secureApiPropertiesConfig.getCipherAlgorithmEnum();
         // 如果是会话密钥模式
         if (SecureApiProperties.Mode.SESSION_KEY == secureApiPropertiesConfig.getMode()) {

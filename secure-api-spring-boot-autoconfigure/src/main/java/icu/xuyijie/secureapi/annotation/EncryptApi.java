@@ -8,7 +8,7 @@ import java.lang.annotation.*;
  * @description 根据此注解决定是否加密接口返回值
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.TYPE, ElementType.METHOD, ElementType.PARAMETER})
+@Target({ElementType.TYPE, ElementType.METHOD})
 @Documented
 public @interface EncryptApi {
 }
