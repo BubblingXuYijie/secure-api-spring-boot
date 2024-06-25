@@ -17,6 +17,8 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.HashSet;
+import java.util.List;
 
 /**
  * @author 徐一杰
@@ -392,6 +394,34 @@ public class CipherUtils {
      */
     private byte[] base642Byte(String base64Str) {
         return Base64.getUrlDecoder().decode(base64Str);
+    }
+
+    public static void main(String[] args) {
+        CipherUtils cipherUtils = new CipherUtils(CipherAlgorithmEnum.AES_CBC_PKCS5);
+        // 中文转为字符数组占3个长度
+        String content = "hello,您好！《》\\/";
+        System.out.println("原文=" + content);
+
+        //也可以getAesRandomKey()
+        String key = cipherUtils.getRandomSecreteKey("1");
+        String iv = cipherUtils.getRandomIv("1");
+        System.out.println("key：" + key + "，iv：" + iv);
+
+        String s1 = cipherUtils.encrypt(content, key, iv);
+        System.out.println("加密结果=" + s1);
+
+        System.out.println("解密结果=" + cipherUtils.decrypt(s1, key, iv));
+
+        content = new HashSet<>(Arrays.asList("a", 1, "b", 2, "c", 3)).toString();
+        cipherUtils = new CipherUtils(CipherAlgorithmEnum.RSA_ECB_SHA256);
+        RsaKeyPair rsaKeyPair = cipherUtils.getRsaKeyPair("1");
+        System.out.println("RSA 公钥key：" + rsaKeyPair.getPublicKey() + "，私钥key：" + rsaKeyPair.getPrivateKey());
+        String s2 = cipherUtils.encrypt(content, rsaKeyPair.getPublicKey());
+        System.out.println("RSA加密结果=" + s2);
+
+        String decrypt = cipherUtils.decrypt(s2, rsaKeyPair.getPrivateKey());
+        System.out.println("RSA解密结果=" + decrypt);
+        System.out.println(decrypt);
     }
 
 }

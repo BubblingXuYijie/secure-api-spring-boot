@@ -335,7 +335,7 @@ public enum CipherAlgorithmEnum {
 
     private static void generateRsaKeyIfAbsent(CipherUtils cipherUtils, SecureApiPropertiesConfig secureApiPropertiesConfig) {
         if (!StringUtils.hasText(secureApiPropertiesConfig.getPublicKey()) || !StringUtils.hasText(secureApiPropertiesConfig.getPrivateKey())) {
-            RsaKeyPair rsaKeyPair = cipherUtils.getRsaKeyPair();
+            RsaKeyPair rsaKeyPair = cipherUtils.getRsaKeyPair("1");
             secureApiPropertiesConfig.setPublicKey(rsaKeyPair.getPublicKey());
             secureApiPropertiesConfig.setPrivateKey(rsaKeyPair.getPrivateKey());
             log.info("\n您未配置接口加解密密钥对，生成随机密钥对，请妥善保存\n公钥：{}\n私钥：{}", rsaKeyPair.getPublicKey(), rsaKeyPair.getPrivateKey());

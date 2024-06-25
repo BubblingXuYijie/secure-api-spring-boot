@@ -10,12 +10,8 @@ public class SecureApiThreadLocal {
 
     }
 
-    private static final ThreadLocal<Boolean> IS_ENCRYPT_API = new InheritableThreadLocal<>();
-    private static final ThreadLocal<Boolean> IS_DECRYPT_API = new InheritableThreadLocal<>();
-    static {
-        IS_ENCRYPT_API.set(false);
-        IS_DECRYPT_API.set(false);
-    }
+    private static final ThreadLocal<Boolean> IS_ENCRYPT_API = ThreadLocal.withInitial(() -> false);
+    private static final ThreadLocal<Boolean> IS_DECRYPT_API = ThreadLocal.withInitial(() -> false);
 
     /**
      * 设置 IS_ENCRYPT_API 的值

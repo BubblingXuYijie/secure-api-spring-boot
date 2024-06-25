@@ -1,10 +1,12 @@
 package icu.xuyijie.controller;
 
 import icu.xuyijie.entity.ResultEntity;
-import icu.xuyijie.secureapi.annotation.DecryptApi;
 import icu.xuyijie.secureapi.annotation.DecryptParam;
-import icu.xuyijie.secureapi.annotation.EncryptApi;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author 徐一杰
@@ -13,14 +15,20 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @RequestMapping("secureApiTest")
-@EncryptApi
-@DecryptApi
 public class TestController {
+    @RequestMapping("/testForm")
+    public void testForm(User user) {
+        System.out.println(user);
+        System.out.println(user.getName());
+    }
+
     @RequestMapping("/testParam")
-    public void testParam(@RequestHeader(required = false) String a, String id, @DecryptParam(name = "name", defaultValue = "徐一杰") String name) {
+    public void testParam(@RequestHeader(required = false) String a, @RequestParam(defaultValue = "0") String id, @DecryptParam(name = "name", defaultValue = "徐一杰") Map<String, String> name, @DecryptParam(defaultValue = "1,2,2") Set<String> age) {
         System.out.println(a);
         System.out.println(id);
         System.out.println(name);
+        System.out.println(name.get("b"));
+        System.out.println(age);
     }
 
     @RequestMapping("/testResponse")

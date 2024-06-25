@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpInputMessage;
+import org.springframework.lang.NonNull;
 
 import java.io.*;
 import java.lang.reflect.Method;
@@ -36,13 +37,9 @@ public class DecryptHttpInputMessage implements HttpInputMessage {
             body = null;
             return;
         }
-        String decryptBody = content;
-        // 判断是否是密文，大括号开头的是json，说明是明文，就不需要解密了
-        if (!content.startsWith("{")) {
-            // 去除json值两边的双引号
-            content = content.replace("\"", "");
-            decryptBody = CipherModeHandler.handleDecryptMode(content, secureApiPropertiesConfig);
-        }
+        // 去除json值两边的双引号
+        content = content.replace("\"", "");
+        String decryptBody = CipherModeHandler.handleDecryptMode(content, secureApiPropertiesConfig);
         body = new ByteArrayInputStream(decryptBody.getBytes());
 
         if (secureApiPropertiesConfig.isShowLog()) {
@@ -55,11 +52,13 @@ public class DecryptHttpInputMessage implements HttpInputMessage {
     }
 
     @Override
+    @NonNull
     public InputStream getBody() {
         return body;
     }
 
     @Override
+    @NonNull
     public HttpHeaders getHeaders() {
         return httpHeaders;
     }
