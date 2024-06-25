@@ -8,6 +8,7 @@ import org.springframework.beans.TypeMismatchException;
 import org.springframework.core.MethodParameter;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
+import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.WebDataBinder;
@@ -18,12 +19,14 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.util.*;
 
 /**
  * @author 徐一杰
  * @date 2024/6/24 19:14
- * @description param参数处理器
+ * @description param和formData参数处理器
  */
 @Component
 public class SecureApiArgumentResolver implements HandlerMethodArgumentResolver {
@@ -36,8 +39,12 @@ public class SecureApiArgumentResolver implements HandlerMethodArgumentResolver 
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
         boolean parameterAnnotation = parameter.hasParameterAnnotation(DecryptParam.class);
-        // 三种情况走这个处理器：1、配置了解密url并且没有加@RequestParam注解。2、参数加了DecryptParam注解
-        return SecureApiThreadLocal.getIsDecryptApi() || parameterAnnotation;
+        // 获取参数类型
+        Class<?> parameterType = parameter.getParameterType();
+        // 根据参数类型，获取对象，如果对象为空，可能是实体类，放行，下面会检测实体类字段哪些需要解密
+        Object o = getObjectByType(parameterType, "");
+        // 三种情况走这个处理器：1、配置了解密url并参数没有加@RequestParam、@RequestPart注解。2、参数加了DecryptParam注解。3、参数是实体类
+        return SecureApiThreadLocal.getIsDecryptApi() || parameterAnnotation || o == null;
     }
 
     @Override
@@ -61,30 +68,50 @@ public class SecureApiArgumentResolver implements HandlerMethodArgumentResolver 
         if (parameterValue == null && hasDecryptParam && decryptParam.required() && !StringUtils.hasText(decryptParam.defaultValue())) {
             throw new MissingServletRequestParameterException(decryptParam.value(), parameterType.getTypeName());
         }
-        // 解密参数值
-        parameterValue = CipherModeHandler.handleDecryptMode(parameterValue, secureApiPropertiesConfig);
+        // 解密参数值，这里再判断一次是应对实体类和普通字段同时作为参数时的情况
+        if (SecureApiThreadLocal.getIsDecryptApi() || hasDecryptParam) {
+            parameterValue = CipherModeHandler.handleDecryptMode(parameterValue, secureApiPropertiesConfig);
+        }
         // 参数不为空并且解密成功，解密后要自行处理各种类型
         Object result = null;
-        if (StringUtils.hasText(parameterValue)) {
-            if (List.class.isAssignableFrom(parameterType)) {
-                result = Arrays.asList(handleListString(parameterValue));
-            } else if (Set.class.isAssignableFrom(parameterType)) {
-                result = new HashSet<>(Arrays.asList(handleListString(parameterValue)));
-            } else if (Queue.class.isAssignableFrom(parameterType)) {
-                result = new PriorityQueue<>(Arrays.asList(handleListString(parameterValue)));
-            } else if (Map.class.isAssignableFrom(parameterType)) {
-                String[] kvs = parameterValue.replace("\"", "").replace("{", "").replace("}", "").replace(" ", "").split(",");
-                Map<String, String> map = new HashMap<>(kvs.length);
-                for (String kv : kvs) {
-                    String[] split = kv.split("=");
-                    map.put(split[0], split[1]);
-                }
-                result = map;
+        if (parameterValue != null) {
+            result = getObjectByType(parameterType, parameterValue);
+            if (result == null) {
+                result = parameterValue;
             }
         } else {
-            // 参数解密失败或者参数为空不解密返回defaultValue
-            if (hasDecryptParam && StringUtils.hasText(decryptParam.defaultValue())) {
-                result = decryptParam.defaultValue();
+            try {
+                // 对象类型，获取对象
+                result = parameterType.getDeclaredConstructor().newInstance();
+                // 获取对象内字段
+                for (Field field : parameterType.getDeclaredFields()) {
+                    // 获取对应字段参数值
+                    String objectParameterValue = webRequest.getParameter(field.getName());
+                    boolean fieldAnnotationPresent = field.isAnnotationPresent(DecryptParam.class);
+                    boolean isDecrypt = fieldAnnotationPresent || SecureApiThreadLocal.getIsDecryptApi();
+                    if (isDecrypt) {
+                        // 解密字段参数值
+                        objectParameterValue = CipherModeHandler.handleDecryptMode(objectParameterValue, secureApiPropertiesConfig);
+                    }
+                    // 获取字段类型
+                    Class<?> fieldType = field.getType();
+                    // 获取字段包装类型
+                    Class<?> fieldPackageType = ClassUtils.resolvePrimitiveIfNecessary(fieldType);
+                    // 设置对象字段值
+                    Object o = getObjectByType(fieldPackageType, objectParameterValue);
+                    if (StringUtils.hasText(objectParameterValue) && o == null) {
+                        // 转换String类型为实体类字段类型
+                        Constructor<?> constructor = fieldPackageType.getConstructor(objectParameterValue.getClass());
+                        o = constructor.newInstance(objectParameterValue);
+                    }
+                    field.setAccessible(true);
+                    field.set(result, o);
+                }
+            } catch (Exception e) {
+                // 参数解密失败或者参数为空不解密返回defaultValue
+                if (hasDecryptParam && StringUtils.hasText(decryptParam.defaultValue())) {
+                    result = decryptParam.defaultValue();
+                }
             }
         }
         // springboot处理参数类型
@@ -108,7 +135,45 @@ public class SecureApiArgumentResolver implements HandlerMethodArgumentResolver 
      * @return 转回List数组
      */
     private static String[] handleListString(String s) {
-        return s.replace("[", "").replace("]", "").replace(" ", "").split(",");
+        String replace = s.replace("[", "").replace("]", "").replace(" ", "");
+        if (StringUtils.hasText(replace)) {
+            return replace.split(",");
+        }
+        return new String[0];
+    }
+
+    /**
+     * 把字符串转换为对应类型数据，如果没有对应类型，返回null
+     *
+     * @param parameterType 对应类型
+     * @param parameterValue 字符串
+     * @return 字符串转换为对应类型数据，如果没有对应类型，返回null
+     */
+    private Object getObjectByType(Class<?> parameterType, String parameterValue) {
+        if (parameterValue == null) {
+            return null;
+        }
+        Object o = null;
+        if (List.class.isAssignableFrom(parameterType)) {
+            o = Arrays.asList(handleListString(parameterValue));
+        } else if (Set.class.isAssignableFrom(parameterType)) {
+            o = new HashSet<>(Arrays.asList(handleListString(parameterValue)));
+        } else if (Queue.class.isAssignableFrom(parameterType)) {
+            o = new PriorityQueue<>(Arrays.asList(handleListString(parameterValue)));
+        } else if (Map.class.isAssignableFrom(parameterType)) {
+            String[] kvs = parameterValue.replace("\"", "").replace("{", "").replace("}", "").replace(" ", "").split(",");
+            if (kvs.length > 0 && StringUtils.hasText(kvs[0])) {
+                Map<String, String> map = new HashMap<>(kvs.length);
+                for (String kv : kvs) {
+                    String[] split = kv.split("=");
+                    map.put(split[0], split[1]);
+                }
+                o = map;
+            } else {
+                o = new HashMap<>(0);
+            }
+        }
+        return o;
     }
 
 }

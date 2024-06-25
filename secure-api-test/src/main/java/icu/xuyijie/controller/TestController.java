@@ -1,10 +1,11 @@
 package icu.xuyijie.controller;
 
 import icu.xuyijie.entity.ResultEntity;
+import icu.xuyijie.secureapi.annotation.DecryptApi;
 import icu.xuyijie.secureapi.annotation.DecryptParam;
+import icu.xuyijie.secureapi.annotation.EncryptApi;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -17,9 +18,9 @@ import java.util.Set;
 @RequestMapping("secureApiTest")
 public class TestController {
     @RequestMapping("/testForm")
-    public void testForm(User user) {
+    public void testForm(User user, Integer age) {
         System.out.println(user);
-        System.out.println(user.getName());
+        System.out.println(age);
     }
 
     @RequestMapping("/testParam")
@@ -37,6 +38,8 @@ public class TestController {
     }
 
     @RequestMapping("/testRequest")
+    @DecryptApi
+    @EncryptApi
     public ResultEntity<String> testRequest(@RequestHeader String a, @RequestBody ResultEntity<String> resultEntity) {
         System.out.println("请求头正常显示：" + a);
         System.out.println(resultEntity);

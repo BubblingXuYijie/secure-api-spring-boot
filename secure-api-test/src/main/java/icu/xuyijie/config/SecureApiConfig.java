@@ -29,7 +29,7 @@ public class SecureApiConfig {
         secureApiPropertiesConfig.setSessionKeyCipherAlgorithm(CipherAlgorithmEnum.AES_ECB_PKCS5);
         secureApiPropertiesConfig.setCipherAlgorithmEnum(CipherAlgorithmEnum.RSA_ECB_SHA256);
         secureApiPropertiesConfig.setEncryptUrl(new SecureApiProperties.UrlPattern(Arrays.asList("/**"), new ArrayList<>()));
-        secureApiPropertiesConfig.setDecryptUrl(new SecureApiProperties.UrlPattern(Arrays.asList("/**"), new ArrayList<>()));
+        secureApiPropertiesConfig.setDecryptUrl(new SecureApiProperties.UrlPattern(Arrays.asList("/**"), Arrays.asList("/secureApiTest/testForm")));
         return secureApiPropertiesConfig;
     }
 }
