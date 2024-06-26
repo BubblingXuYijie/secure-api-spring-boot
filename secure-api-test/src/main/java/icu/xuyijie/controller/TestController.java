@@ -18,9 +18,11 @@ import java.util.Set;
 @RequestMapping("secureApiTest")
 public class TestController {
     @RequestMapping("/testForm")
-    public int testForm(User user, @DecryptParam Integer age) {
+    public int testForm(User user, @DecryptParam Integer age,  @DecryptParam Map<String, String> map, @DecryptParam Set<String> set) {
         System.out.println(user);
         System.out.println(age);
+        System.out.println(map);
+        System.out.println(set);
         return age;
     }
 
@@ -41,8 +43,7 @@ public class TestController {
     @RequestMapping("/testRequest")
     @DecryptApi
     @EncryptApi
-    public ResultEntity<String> testRequest(@RequestHeader String a, @RequestBody ResultEntity<String> resultEntity) {
-        System.out.println("请求头正常显示：" + a);
+    public ResultEntity<String> testRequest(@RequestBody ResultEntity<String> resultEntity) {
         System.out.println(resultEntity);
         return ResultEntity.success("嘿嘿嘿");
     }

@@ -11,7 +11,6 @@ import java.util.List;
  */
 public class User {
     private int id;
-    @DecryptParam
     private String name;
     @DecryptParam
     private List<String> role;

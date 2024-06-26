@@ -18,7 +18,6 @@ import java.security.spec.X509EncodedKeySpec;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.HashSet;
-import java.util.List;
 
 /**
  * @author 徐一杰
@@ -136,8 +135,8 @@ public class CipherUtils {
     /**
      * 随机生成RSA密钥对
      */
-    public RsaKeyPair getRsaKeyPair() {
-        return getRsaKeyPair(null);
+    public RsaKeyPair getRandomRsaKeyPair() {
+        return getRandomRsaKeyPair(null);
     }
 
     /**
@@ -146,7 +145,7 @@ public class CipherUtils {
      * @param seed 随机数种子
      * @return RsaKeyPair对象
      */
-    public RsaKeyPair getRsaKeyPair(String seed) {
+    public RsaKeyPair getRandomRsaKeyPair(String seed) {
         try {
             // KeyPairGenerator类用于生成公钥和私钥对，基于RSA算法生成对象
             KeyPairGenerator keyPairGen = KeyPairGenerator.getInstance(KeyGenAlgorithmEnum.RSA.getValue());
@@ -414,7 +413,7 @@ public class CipherUtils {
 
         content = new HashSet<>(Arrays.asList("a", 1, "b", 2, "c", 3)).toString();
         cipherUtils = new CipherUtils(CipherAlgorithmEnum.RSA_ECB_SHA256);
-        RsaKeyPair rsaKeyPair = cipherUtils.getRsaKeyPair("1");
+        RsaKeyPair rsaKeyPair = cipherUtils.getRandomRsaKeyPair("1");
         System.out.println("RSA 公钥key：" + rsaKeyPair.getPublicKey() + "，私钥key：" + rsaKeyPair.getPrivateKey());
         String s2 = cipherUtils.encrypt(content, rsaKeyPair.getPublicKey());
         System.out.println("RSA加密结果=" + s2);
