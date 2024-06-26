@@ -337,7 +337,7 @@ public class CipherUtils {
             //去除最后匹配到的补全字符
             return new String(result, StandardCharsets.UTF_8).replaceAll(paddingString + "$", "");
         } catch (Exception e) {
-            log.error("解密失败，请检查加密key和解密key是否相同", e);
+            log.error("解密失败，请检查加密key和解密key是否相同，密文：{}", content, e);
             throw new SecureApiException(ErrorEnum.DECRYPT_ERROR);
         }
     }
@@ -361,7 +361,7 @@ public class CipherUtils {
             //去除最后匹配到的补全字符
             return new String(result, StandardCharsets.UTF_8);
         } catch (Exception e) {
-            log.error("RSA解密失败，请检查公钥和私钥匹配情况", e);
+            log.error("RSA解密失败，请检查公钥和私钥匹配情况，密文：{}", content, e);
             throw new SecureApiException(ErrorEnum.RSA_DECRYPT_ERROR);
         }
     }

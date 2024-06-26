@@ -37,7 +37,7 @@ public class SecureApiArgumentResolver implements HandlerMethodArgumentResolver 
     }
 
     @Override
-    public boolean supportsParameter(MethodParameter parameter) {
+    public boolean supportsParameter(@NonNull MethodParameter parameter) {
         boolean parameterAnnotation = parameter.hasParameterAnnotation(DecryptParam.class);
         // 获取参数类型
         Class<?> parameterType = parameter.getParameterType();
@@ -69,7 +69,8 @@ public class SecureApiArgumentResolver implements HandlerMethodArgumentResolver 
             throw new MissingServletRequestParameterException(decryptParam.value(), parameterType.getTypeName());
         }
         // 解密参数值，这里再判断一次是应对实体类和普通字段同时作为参数时的情况
-        if (SecureApiThreadLocal.getIsDecryptApi() || hasDecryptParam) {
+        boolean isDecryptParam = (SecureApiThreadLocal.getIsDecryptApi() || hasDecryptParam) && secureApiPropertiesConfig.isEnabled();
+        if (isDecryptParam) {
             parameterValue = CipherModeHandler.handleDecryptMode(parameterValue, secureApiPropertiesConfig);
         }
         // 参数不为空并且解密成功，解密后要自行处理各种类型
@@ -88,8 +89,8 @@ public class SecureApiArgumentResolver implements HandlerMethodArgumentResolver 
                     // 获取对应字段参数值
                     String objectParameterValue = webRequest.getParameter(field.getName());
                     boolean fieldAnnotationPresent = field.isAnnotationPresent(DecryptParam.class);
-                    boolean isDecrypt = fieldAnnotationPresent || SecureApiThreadLocal.getIsDecryptApi();
-                    if (isDecrypt) {
+                    boolean isDecryptField = (fieldAnnotationPresent || SecureApiThreadLocal.getIsDecryptApi()) && secureApiPropertiesConfig.isEnabled();
+                    if (isDecryptField) {
                         // 解密字段参数值
                         objectParameterValue = CipherModeHandler.handleDecryptMode(objectParameterValue, secureApiPropertiesConfig);
                     }

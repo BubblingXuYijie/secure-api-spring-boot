@@ -1,8 +1,16 @@
 secure-api:
-  enabled: true
+  enabled: false
   show-log: true
+  mode: common
   cipher-algorithm: rsa_ecb_sha256
+  session-key-cipher-algorithm: aes_ecb_pkcs5
+  key:
+  iv:
+  public-key:
+  private-key:
   encrypt-url:
     include-urls: /**
+    exclude-urls:
   decrypt-url:
     include-urls: /**
+    exclude-urls:
