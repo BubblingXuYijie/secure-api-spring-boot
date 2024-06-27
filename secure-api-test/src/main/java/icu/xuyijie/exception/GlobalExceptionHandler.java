@@ -3,12 +3,11 @@ package icu.xuyijie.exception;
 import icu.xuyijie.entity.ResultEntity;
 import icu.xuyijie.secureapi.annotation.EncryptApi;
 import icu.xuyijie.secureapi.exception.SecureApiException;
+import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * @author 徐一杰
@@ -27,7 +26,7 @@ public class GlobalExceptionHandler {
      * @return 自定义返回体，这里也可以使用@EncryptApi进行返回结果加密
      */
     @ExceptionHandler(value = SecureApiException.class)
-//    @EncryptApi
+    //@EncryptApi
     public ResultEntity<Object> bizExceptionHandler(HttpServletRequest request, SecureApiException e) {
         logger.error("SecureApi异常：{}", e.getErrorMsg());
         return ResultEntity.failure(500, e.getErrorMsg());

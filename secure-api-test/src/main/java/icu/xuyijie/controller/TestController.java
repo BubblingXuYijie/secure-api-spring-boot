@@ -27,12 +27,12 @@ public class TestController {
     }
 
     @RequestMapping("/testParam")
-    public void testParam(@RequestHeader(required = false) String a, @RequestParam(defaultValue = "0") String id, @DecryptParam(required = false) Map<String, String> name, @DecryptParam(defaultValue = "1,2,2") Set<String> age) {
+    public void testParam(@RequestHeader(required = false) String a, @RequestParam(defaultValue = "0") String id, @DecryptParam(required = false) Map<String, String> map, @DecryptParam(defaultValue = "1,2,2") Set<String> set) {
         System.out.println(a);
         System.out.println(id);
-        System.out.println(name);
-        System.out.println(name.get("b"));
-        System.out.println(age);
+        System.out.println(map);
+        System.out.println(map.get("b"));
+        System.out.println(set);
     }
 
     @RequestMapping("/testResponse")

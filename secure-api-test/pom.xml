@@ -26,4 +26,18 @@
         </dependency>
     </dependencies>
 
+    <build>
+        <plugins>
+            <!--spring6.1 调整了参数，而springboot会自动帮助设置，聚合项目，真正项目并未依赖 spring-boot-starter-parent，需要通过maven进行设置-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.13.0</version>
+                <configuration>
+                    <parameters>true</parameters>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>
