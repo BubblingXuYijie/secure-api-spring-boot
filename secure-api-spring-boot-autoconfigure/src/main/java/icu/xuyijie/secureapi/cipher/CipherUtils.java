@@ -15,9 +15,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.HashSet;
+import java.util.*;
 
 /**
  * @author 徐一杰
@@ -205,12 +203,10 @@ public class CipherUtils {
      */
     public String encrypt(String content, String key) {
         check(content, key);
-        switch (keyGenAlgorithmEnum) {
-            case RSA:
-                return encryptRsa(content, key);
-            default:
-                return encrypt(content, key, null);
-        }
+        return switch (keyGenAlgorithmEnum) {
+            case RSA -> encryptRsa(content, key);
+            default -> encrypt(content, key, null);
+        };
     }
 
     /**
@@ -304,12 +300,10 @@ public class CipherUtils {
      */
     public String decrypt(String content, String key) {
         check(content, key);
-        switch (keyGenAlgorithmEnum) {
-            case RSA:
-                return decryptRsa(content, key);
-            default:
-                return decrypt(content, key, null);
-        }
+        return switch (keyGenAlgorithmEnum) {
+            case RSA -> decryptRsa(content, key);
+            default -> decrypt(content, key, null);
+        };
     }
 
     /**
@@ -411,7 +405,8 @@ public class CipherUtils {
 
         System.out.println("解密结果=" + cipherUtils.decrypt(s1, key, iv));
 
-        content = new HashSet<>(Arrays.asList("a", 1, "b", 2, "c", 3)).toString();
+        content = new HashSet<>(List.of("a", 1, "b", 2, "c", 3)).toString();
+        content = Map.of("a", "哈哈", "b", "1", "c", "嘿嘿").toString();
         cipherUtils = new CipherUtils(CipherAlgorithmEnum.RSA_ECB_SHA256);
         RsaKeyPair rsaKeyPair = cipherUtils.getRandomRsaKeyPair("1");
         System.out.println("RSA 公钥key：" + rsaKeyPair.getPublicKey() + "，私钥key：" + rsaKeyPair.getPrivateKey());

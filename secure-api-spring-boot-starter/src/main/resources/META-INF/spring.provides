@@ -1,1 +1,1 @@
-provides: secure-api-spring-boot-autoconfigure
+provides: secure-api-spring-boot-starter,secure-api-spring-boot-autoconfigure

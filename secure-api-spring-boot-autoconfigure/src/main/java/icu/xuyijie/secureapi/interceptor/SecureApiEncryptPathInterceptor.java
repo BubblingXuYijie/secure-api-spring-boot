@@ -1,11 +1,10 @@
 package icu.xuyijie.secureapi.interceptor;
 
 import icu.xuyijie.secureapi.threadlocal.SecureApiThreadLocal;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 /**
  * @author 徐一杰

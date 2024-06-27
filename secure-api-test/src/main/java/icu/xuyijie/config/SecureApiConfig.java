@@ -8,8 +8,7 @@ import icu.xuyijie.secureapi.model.SecureApiPropertiesConfig;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.context.annotation.Bean;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author 徐一杰
@@ -40,8 +39,8 @@ public class SecureApiConfig {
         secureApiPropertiesConfig.setPrivateKey(randomRsaKeyPair.getPrivateKey());
 
         // 不需要使用url匹配功能可以删除掉下面两行，或者传入空数组
-        secureApiPropertiesConfig.setEncryptUrl(new SecureApiProperties.UrlPattern(Arrays.asList("/**"), new ArrayList<>()));
-        secureApiPropertiesConfig.setDecryptUrl(new SecureApiProperties.UrlPattern(Arrays.asList("/**"), Arrays.asList("/secureApiTest/testForm")));
+        secureApiPropertiesConfig.setEncryptUrl(new SecureApiProperties.UrlPattern(List.of("/**"), List.of()));
+        secureApiPropertiesConfig.setDecryptUrl(new SecureApiProperties.UrlPattern(List.of("/**"), List.of("/secureApiTest/testForm")));
         return secureApiPropertiesConfig;
     }
 }
