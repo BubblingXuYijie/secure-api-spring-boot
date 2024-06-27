@@ -48,8 +48,8 @@ public class SecureApiAutoConfigure {
         if (secureApiPropertiesConfig.isEnabled()) {
             // 检测加密模式配置是否正确
             SecureApiProperties.Mode mode = secureApiPropertiesConfig.getMode();
-            boolean isAlgorithmCorrect = !cipherAlgorithmEnum.getValue().startsWith("RSA") || secureApiPropertiesConfig.getSessionKeyCipherAlgorithm().getValue().startsWith("RSA");
-            if (SecureApiProperties.Mode.SESSION_KEY == mode && isAlgorithmCorrect) {
+            boolean isAlgorithmCorrect = cipherAlgorithmEnum.getValue().startsWith("RSA") && secureApiPropertiesConfig.getSessionKeyCipherAlgorithm().getValue().startsWith("AES");
+            if (SecureApiProperties.Mode.SESSION_KEY == mode && !isAlgorithmCorrect) {
                 throw new SecureApiException(ErrorEnum.SESSION_MODE_CONFIG_ERROR);
             }
             // 如果用户没有配置key，根据加密算法自动生成key并打印在控制台

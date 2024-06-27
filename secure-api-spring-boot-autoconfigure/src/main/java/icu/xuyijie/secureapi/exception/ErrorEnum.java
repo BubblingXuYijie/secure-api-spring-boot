@@ -20,7 +20,7 @@ public enum ErrorEnum {
     SESSION_KEY_DECRYPT_ERROR("会话密钥解密失败，请检查密文或公钥和私钥匹配情况"),
     KEY_ERROR("公钥或私钥错误"),
     KEY_CREATE_ERROR("获取密钥失败"),
-    SESSION_MODE_CONFIG_ERROR("会话密钥模式中，必须设置加密算法为RSA，会话密钥算法为非RSA"),
+    SESSION_MODE_CONFIG_ERROR("会话密钥模式中，必须设置加密算法为RSA，会话密钥算法为AES"),
     ;
 
     private final String message;
