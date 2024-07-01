@@ -76,13 +76,16 @@ public class SecureApiArgumentResolver implements HandlerMethodArgumentResolver 
         // 参数不为空并且解密成功，解密后要自行处理各种类型
         Object result = null;
         if (parameterValue != null) {
+            // 特定参数类型需要处理成对象
             result = getObjectByType(parameterType, parameterValue);
+            // 不需要处理的保持原值
             if (result == null) {
                 result = parameterValue;
             }
         } else {
+            // 对象类型情况
             try {
-                // 对象类型，获取对象
+                // 获取对象
                 result = parameterType.getDeclaredConstructor().newInstance();
                 // 获取对象内字段
                 for (Field field : parameterType.getDeclaredFields()) {
@@ -115,6 +118,7 @@ public class SecureApiArgumentResolver implements HandlerMethodArgumentResolver 
                 }
             }
         }
+
         // springboot处理参数类型
         if (binderFactory != null) {
             WebDataBinder binder = binderFactory.createBinder(webRequest, null, parameterName);

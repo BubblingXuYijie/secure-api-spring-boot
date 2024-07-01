@@ -26,13 +26,14 @@ public class SecureApiConfig {
     public SecureApiPropertiesConfig secureApiPropertiesConfig() {
         SecureApiPropertiesConfig secureApiPropertiesConfig = new SecureApiPropertiesConfig();
         secureApiPropertiesConfig.setEnabled(true);
+        secureApiPropertiesConfig.setUrlSafe(true);
         secureApiPropertiesConfig.setShowLog(true);
         secureApiPropertiesConfig.setMode(SecureApiProperties.Mode.COMMON);
         secureApiPropertiesConfig.setSessionKeyCipherAlgorithm(CipherAlgorithmEnum.AES_ECB_PKCS5);
         secureApiPropertiesConfig.setCipherAlgorithmEnum(CipherAlgorithmEnum.RSA_ECB_SHA256);
 
         // 密钥可以不设置，组件会自动生成一个，并打印在控制台，如果需要手动生成，只需要使用组件提供的CipherUtils
-        CipherUtils cipherUtils = new CipherUtils(CipherAlgorithmEnum.RSA_ECB_SHA256);
+        CipherUtils cipherUtils = new CipherUtils(CipherAlgorithmEnum.RSA_ECB_SHA256, true);
         // 因为我们选择的是非对称加密RSA，所以生成一个密钥对，getRandomRsaKeyPair可传入seed参数，在测试时可用于控制每次生成的密钥相同
         RsaKeyPair randomRsaKeyPair = cipherUtils.getRandomRsaKeyPair("1");
         // 把生成的密钥对设置到secureApiPropertiesConfig
