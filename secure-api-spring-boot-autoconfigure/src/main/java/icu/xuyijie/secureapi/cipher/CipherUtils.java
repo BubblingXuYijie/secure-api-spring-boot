@@ -411,32 +411,32 @@ public class CipherUtils {
         }
     }
 
-    public static void main(String[] args) {
-        CipherUtils cipherUtils = new CipherUtils(CipherAlgorithmEnum.AES_CBC_PKCS5, true);
-        // 中文转为字符数组占3个长度
-        String content = "hello,您好！《》\\/";
-        System.out.println("原文=" + content);
-
-        String key = cipherUtils.getRandomSecreteKey("1");
-        String iv = cipherUtils.getRandomIv("1");
-        System.out.println("key：" + key + "，iv：" + iv);
-
-        String s1 = cipherUtils.encrypt(content, key, iv);
-        System.out.println("加密结果=" + s1);
-
-        System.out.println("解密结果=" + cipherUtils.decrypt(s1, key, iv));
-
-        content = new HashSet<>(List.of("a", 1, "b", 2, "c", 3)).toString();
-        content = Map.of("a", "哈哈", "b", "1", "c", "嘿嘿").toString();
-        cipherUtils = new CipherUtils(CipherAlgorithmEnum.RSA_ECB_SHA256);
-        RsaKeyPair rsaKeyPair = cipherUtils.getRandomRsaKeyPair("1");
-        System.out.println("RSA 公钥key：" + rsaKeyPair.getPublicKey() + "，私钥key：" + rsaKeyPair.getPrivateKey());
-        String s2 = cipherUtils.encrypt(content, rsaKeyPair.getPublicKey());
-        System.out.println("RSA加密结果=" + s2);
-
-        String decrypt = cipherUtils.decrypt(s2, rsaKeyPair.getPrivateKey());
-        System.out.println("RSA解密结果=" + decrypt);
-        System.out.println(decrypt);
-    }
+//    public static void main(String[] args) {
+//        CipherUtils cipherUtils = new CipherUtils(CipherAlgorithmEnum.AES_CBC_PKCS5, true);
+//        // 中文转为字符数组占3个长度
+//        String content = "hello,您好！《》\\/";
+//        System.out.println("原文=" + content);
+//
+//        String key = cipherUtils.getRandomSecreteKey("1");
+//        String iv = cipherUtils.getRandomIv("1");
+//        System.out.println("key：" + key + "，iv：" + iv);
+//
+//        String s1 = cipherUtils.encrypt(content, key, iv);
+//        System.out.println("加密结果=" + s1);
+//
+//        System.out.println("解密结果=" + cipherUtils.decrypt(s1, key, iv));
+//
+//        content = new HashSet<>(List.of("a", 1, "b", 2, "c", 3)).toString();
+//        content = Map.of("a", "哈哈", "b", "1", "c", "嘿嘿").toString();
+//        cipherUtils = new CipherUtils(CipherAlgorithmEnum.RSA_ECB_SHA256);
+//        RsaKeyPair rsaKeyPair = cipherUtils.getRandomRsaKeyPair("1");
+//        System.out.println("RSA 公钥key：" + rsaKeyPair.getPublicKey() + "，私钥key：" + rsaKeyPair.getPrivateKey());
+//        String s2 = cipherUtils.encrypt(content, rsaKeyPair.getPublicKey());
+//        System.out.println("RSA加密结果=" + s2);
+//
+//        String decrypt = cipherUtils.decrypt(s2, rsaKeyPair.getPrivateKey());
+//        System.out.println("RSA解密结果=" + decrypt);
+//        System.out.println(decrypt);
+//    }
 
 }
