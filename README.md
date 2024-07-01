@@ -1,6 +1,8 @@
 # secure-api-spring-boot
 
 > 项目地址/Code Repo：https://github.com/BubblingXuYijie/secure-api-spring-boot
+>
+> Gitee仓库：https://gitee.com/BubblingXuYijie/secure-api-spring-boot
 
 > 文档地址/Doc Url：https://bubblingxuyijie.github.io/secure-api-doc
 >
