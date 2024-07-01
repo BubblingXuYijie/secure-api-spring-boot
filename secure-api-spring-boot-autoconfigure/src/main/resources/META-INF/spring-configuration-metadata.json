@@ -12,35 +12,42 @@
       "type": "java.lang.Boolean",
       "description": "是否开启接口加解密功能",
       "sourceType": "icu.xuyijie.secureapi.model.SecureApiProperties",
-      "defaultValue": false
+      "defaultValue": true
+    },
+    {
+      "name": "secure-api.url-safe",
+      "type": "java.lang.Boolean",
+      "description": "生成的base64是否是urlSafe的",
+      "sourceType": "icu.xuyijie.secureapi.model.SecureApiProperties",
+      "defaultValue": true
     },
     {
       "name": "secure-api.show-log",
       "type": "java.lang.Boolean",
       "description": "是否打印加解密结果日志",
       "sourceType": "icu.xuyijie.secureapi.model.SecureApiProperties",
-      "defaultValue": false
+      "defaultValue": true
     },
     {
       "name": "secure-api.mode",
       "type": "icu.xuyijie.secureapi.model.SecureApiProperties$Mode",
       "description": "加密模式",
       "sourceType": "icu.xuyijie.secureapi.model.SecureApiProperties",
-      "defaultValue": false
+      "defaultValue": "common"
     },
     {
       "name": "secure-api.cipher-algorithm",
       "type": "icu.xuyijie.secureapi.cipher.CipherAlgorithmEnum",
       "description": "加密算法",
       "sourceType": "icu.xuyijie.secureapi.model.SecureApiProperties",
-      "defaultValue": "AES_ECB_PKCS5"
+      "defaultValue": "aes_ecb_pkcs5"
     },
     {
       "name": "secure-api.session-key-cipher-algorithm",
       "type": "icu.xuyijie.secureapi.cipher.CipherAlgorithmEnum",
       "description": "会话密钥算法",
       "sourceType": "icu.xuyijie.secureapi.model.SecureApiProperties",
-      "defaultValue": "AES_ECB_PKCS5"
+      "defaultValue": "aes_ecb_pkcs5"
     },
     {
       "name": "secure-api.key",

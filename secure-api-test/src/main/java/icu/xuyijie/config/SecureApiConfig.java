@@ -25,6 +25,7 @@ public class SecureApiConfig {
     public SecureApiPropertiesConfig secureApiPropertiesConfig() {
         SecureApiPropertiesConfig secureApiPropertiesConfig = new SecureApiPropertiesConfig();
         secureApiPropertiesConfig.setEnabled(true);
+        secureApiPropertiesConfig.setUrlSafe(true);
         secureApiPropertiesConfig.setShowLog(true);
         secureApiPropertiesConfig.setMode(SecureApiProperties.Mode.COMMON);
         secureApiPropertiesConfig.setSessionKeyCipherAlgorithm(CipherAlgorithmEnum.AES_ECB_PKCS5);

@@ -14,9 +14,14 @@ public class SecureApiPropertiesConfig {
     private boolean enabled = true;
 
     /**
+     * 生成的base64是否是urlSafe的
+     */
+    private boolean isUrlSafe = true;
+
+    /**
      * 是否打印加解密结果日志
      */
-    private boolean showLog = false;
+    private boolean showLog = true;
 
     /**
      * 加密模式
@@ -69,6 +74,14 @@ public class SecureApiPropertiesConfig {
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
+    }
+
+    public boolean isUrlSafe() {
+        return isUrlSafe;
+    }
+
+    public void setUrlSafe(boolean urlSafe) {
+        isUrlSafe = urlSafe;
     }
 
     public boolean isShowLog() {
@@ -155,6 +168,7 @@ public class SecureApiPropertiesConfig {
     public String toString() {
         return "SecureApiPropertiesConfig{" +
                 "enabled=" + enabled +
+                ", isUrlSafe=" + isUrlSafe +
                 ", showLog=" + showLog +
                 ", mode=" + mode +
                 ", sessionKeyCipherAlgorithm=" + sessionKeyCipherAlgorithm +
