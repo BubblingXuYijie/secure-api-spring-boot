@@ -17,241 +17,241 @@ public enum CipherAlgorithmEnum {
     AES_CBC_NO_PADDING(KeyGenAlgorithmEnum.AES, "AES/CBC/NoPadding", 16, 16) {
         @Override
         public void generateKeyIfAbsent(SecureApiPropertiesConfig secureApiPropertiesConfig) {
-            CipherAlgorithmEnum.generateCbcKeyIfAbsent(new CipherUtils(this), secureApiPropertiesConfig);
+            CipherAlgorithmEnum.generateCbcKeyIfAbsent(this, secureApiPropertiesConfig);
         }
 
         @Override
         public String encrypt(String content, SecureApiPropertiesConfig secureApiPropertiesConfig) {
-            return CipherAlgorithmEnum.symmetricEncrypt(content, new CipherUtils(this), secureApiPropertiesConfig);
+            return CipherAlgorithmEnum.symmetricEncrypt(content, this, secureApiPropertiesConfig);
         }
 
         @Override
         public String decrypt(String content, SecureApiPropertiesConfig secureApiPropertiesConfig) {
-            return CipherAlgorithmEnum.symmetricDecrypt(content, new CipherUtils(this), secureApiPropertiesConfig);
+            return CipherAlgorithmEnum.symmetricDecrypt(content, this, secureApiPropertiesConfig);
         }
     },
     AES_CBC_PKCS5(KeyGenAlgorithmEnum.AES, "AES/CBC/PKCS5Padding", 16, 0) {
         @Override
         public void generateKeyIfAbsent(SecureApiPropertiesConfig secureApiPropertiesConfig) {
-            CipherAlgorithmEnum.generateCbcKeyIfAbsent(new CipherUtils(this), secureApiPropertiesConfig);
+            CipherAlgorithmEnum.generateCbcKeyIfAbsent(this, secureApiPropertiesConfig);
         }
 
         @Override
         public String encrypt(String content, SecureApiPropertiesConfig secureApiPropertiesConfig) {
-            return CipherAlgorithmEnum.symmetricEncrypt(content, new CipherUtils(this), secureApiPropertiesConfig);
+            return CipherAlgorithmEnum.symmetricEncrypt(content, this, secureApiPropertiesConfig);
         }
 
         @Override
         public String decrypt(String content, SecureApiPropertiesConfig secureApiPropertiesConfig) {
-            return CipherAlgorithmEnum.symmetricDecrypt(content, new CipherUtils(this), secureApiPropertiesConfig);
+            return CipherAlgorithmEnum.symmetricDecrypt(content, this, secureApiPropertiesConfig);
         }
     },
     AES_ECB_NO_PADDING(KeyGenAlgorithmEnum.AES, "AES/ECB/NoPadding", 16, 16) {
         @Override
         public void generateKeyIfAbsent(SecureApiPropertiesConfig secureApiPropertiesConfig) {
-            CipherAlgorithmEnum.generateEcbKeyIfAbsent(new CipherUtils(this), secureApiPropertiesConfig);
+            CipherAlgorithmEnum.generateEcbKeyIfAbsent(this, secureApiPropertiesConfig);
         }
 
         @Override
         public String encrypt(String content, SecureApiPropertiesConfig secureApiPropertiesConfig) {
-            return CipherAlgorithmEnum.symmetricEncrypt(content, new CipherUtils(this), secureApiPropertiesConfig);
+            return CipherAlgorithmEnum.symmetricEncrypt(content, this, secureApiPropertiesConfig);
         }
 
         @Override
         public String decrypt(String content, SecureApiPropertiesConfig secureApiPropertiesConfig) {
-            return CipherAlgorithmEnum.symmetricDecrypt(content, new CipherUtils(this), secureApiPropertiesConfig);
+            return CipherAlgorithmEnum.symmetricDecrypt(content, this, secureApiPropertiesConfig);
         }
     },
     AES_ECB_PKCS5(KeyGenAlgorithmEnum.AES, "AES/ECB/PKCS5Padding", 16, 0) {
         @Override
         public void generateKeyIfAbsent(SecureApiPropertiesConfig secureApiPropertiesConfig) {
-            CipherAlgorithmEnum.generateEcbKeyIfAbsent(new CipherUtils(this), secureApiPropertiesConfig);
+            CipherAlgorithmEnum.generateEcbKeyIfAbsent(this, secureApiPropertiesConfig);
         }
 
         @Override
         public String encrypt(String content, SecureApiPropertiesConfig secureApiPropertiesConfig) {
-            return CipherAlgorithmEnum.symmetricEncrypt(content, new CipherUtils(this), secureApiPropertiesConfig);
+            return CipherAlgorithmEnum.symmetricEncrypt(content, this, secureApiPropertiesConfig);
         }
 
         @Override
         public String decrypt(String content, SecureApiPropertiesConfig secureApiPropertiesConfig) {
-            return CipherAlgorithmEnum.symmetricDecrypt(content, new CipherUtils(this), secureApiPropertiesConfig);
+            return CipherAlgorithmEnum.symmetricDecrypt(content, this, secureApiPropertiesConfig);
         }
     },
     DES_CBC_NO_PADDING(KeyGenAlgorithmEnum.DES, "DES/CBC/NoPadding", 8, 16) {
         @Override
         public void generateKeyIfAbsent(SecureApiPropertiesConfig secureApiPropertiesConfig) {
-            CipherAlgorithmEnum.generateCbcKeyIfAbsent(new CipherUtils(this), secureApiPropertiesConfig);
+            CipherAlgorithmEnum.generateCbcKeyIfAbsent(this, secureApiPropertiesConfig);
         }
 
         @Override
         public String encrypt(String content, SecureApiPropertiesConfig secureApiPropertiesConfig) {
-            return CipherAlgorithmEnum.symmetricEncrypt(content, new CipherUtils(this), secureApiPropertiesConfig);
+            return CipherAlgorithmEnum.symmetricEncrypt(content, this, secureApiPropertiesConfig);
         }
 
         @Override
         public String decrypt(String content, SecureApiPropertiesConfig secureApiPropertiesConfig) {
-            return CipherAlgorithmEnum.symmetricDecrypt(content, new CipherUtils(this), secureApiPropertiesConfig);
+            return CipherAlgorithmEnum.symmetricDecrypt(content, this, secureApiPropertiesConfig);
         }
     },
     DES_CBC_PKCS5(KeyGenAlgorithmEnum.DES, "DES/CBC/PKCS5Padding", 8, 0) {
         @Override
         public void generateKeyIfAbsent(SecureApiPropertiesConfig secureApiPropertiesConfig) {
-            CipherAlgorithmEnum.generateCbcKeyIfAbsent(new CipherUtils(this), secureApiPropertiesConfig);
+            CipherAlgorithmEnum.generateCbcKeyIfAbsent(this, secureApiPropertiesConfig);
         }
 
         @Override
         public String encrypt(String content, SecureApiPropertiesConfig secureApiPropertiesConfig) {
-            return CipherAlgorithmEnum.symmetricEncrypt(content, new CipherUtils(this), secureApiPropertiesConfig);
+            return CipherAlgorithmEnum.symmetricEncrypt(content, this, secureApiPropertiesConfig);
         }
 
         @Override
         public String decrypt(String content, SecureApiPropertiesConfig secureApiPropertiesConfig) {
-            return CipherAlgorithmEnum.symmetricDecrypt(content, new CipherUtils(this), secureApiPropertiesConfig);
+            return CipherAlgorithmEnum.symmetricDecrypt(content, this, secureApiPropertiesConfig);
         }
     },
     DES_ECB_NO_PADDING(KeyGenAlgorithmEnum.DES, "DES/ECB/NoPadding", 8, 16) {
         @Override
         public void generateKeyIfAbsent(SecureApiPropertiesConfig secureApiPropertiesConfig) {
-            CipherAlgorithmEnum.generateEcbKeyIfAbsent(new CipherUtils(this), secureApiPropertiesConfig);
+            CipherAlgorithmEnum.generateEcbKeyIfAbsent(this, secureApiPropertiesConfig);
         }
 
         @Override
         public String encrypt(String content, SecureApiPropertiesConfig secureApiPropertiesConfig) {
-            return CipherAlgorithmEnum.symmetricEncrypt(content, new CipherUtils(this), secureApiPropertiesConfig);
+            return CipherAlgorithmEnum.symmetricEncrypt(content, this, secureApiPropertiesConfig);
         }
 
         @Override
         public String decrypt(String content, SecureApiPropertiesConfig secureApiPropertiesConfig) {
-            return CipherAlgorithmEnum.symmetricDecrypt(content, new CipherUtils(this), secureApiPropertiesConfig);
+            return CipherAlgorithmEnum.symmetricDecrypt(content, this, secureApiPropertiesConfig);
         }
     },
     DES_ECB_PKCS5(KeyGenAlgorithmEnum.DES, "DES/ECB/PKCS5Padding", 8, 0) {
         @Override
         public void generateKeyIfAbsent(SecureApiPropertiesConfig secureApiPropertiesConfig) {
-            CipherAlgorithmEnum.generateEcbKeyIfAbsent(new CipherUtils(this), secureApiPropertiesConfig);
+            CipherAlgorithmEnum.generateEcbKeyIfAbsent(this, secureApiPropertiesConfig);
         }
 
         @Override
         public String encrypt(String content, SecureApiPropertiesConfig secureApiPropertiesConfig) {
-            return CipherAlgorithmEnum.symmetricEncrypt(content, new CipherUtils(this), secureApiPropertiesConfig);
+            return CipherAlgorithmEnum.symmetricEncrypt(content, this, secureApiPropertiesConfig);
         }
 
         @Override
         public String decrypt(String content, SecureApiPropertiesConfig secureApiPropertiesConfig) {
-            return CipherAlgorithmEnum.symmetricDecrypt(content, new CipherUtils(this), secureApiPropertiesConfig);
+            return CipherAlgorithmEnum.symmetricDecrypt(content, this, secureApiPropertiesConfig);
         }
     },
     DES_EDE_CBC_NO_PADDING(KeyGenAlgorithmEnum.DES_EDE, "DESede/CBC/NoPadding", 8, 16) {
         @Override
         public void generateKeyIfAbsent(SecureApiPropertiesConfig secureApiPropertiesConfig) {
-            CipherAlgorithmEnum.generateCbcKeyIfAbsent(new CipherUtils(this), secureApiPropertiesConfig);
+            CipherAlgorithmEnum.generateCbcKeyIfAbsent(this, secureApiPropertiesConfig);
         }
 
         @Override
         public String encrypt(String content, SecureApiPropertiesConfig secureApiPropertiesConfig) {
-            return CipherAlgorithmEnum.symmetricEncrypt(content, new CipherUtils(this), secureApiPropertiesConfig);
+            return CipherAlgorithmEnum.symmetricEncrypt(content, this, secureApiPropertiesConfig);
         }
 
         @Override
         public String decrypt(String content, SecureApiPropertiesConfig secureApiPropertiesConfig) {
-            return CipherAlgorithmEnum.symmetricDecrypt(content, new CipherUtils(this), secureApiPropertiesConfig);
+            return CipherAlgorithmEnum.symmetricDecrypt(content, this, secureApiPropertiesConfig);
         }
     },
     DES_EDE_CBC_PKCS5(KeyGenAlgorithmEnum.DES_EDE, "DESede/CBC/PKCS5Padding", 8, 0) {
         @Override
         public void generateKeyIfAbsent(SecureApiPropertiesConfig secureApiPropertiesConfig) {
-            CipherAlgorithmEnum.generateCbcKeyIfAbsent(new CipherUtils(this), secureApiPropertiesConfig);
+            CipherAlgorithmEnum.generateCbcKeyIfAbsent(this, secureApiPropertiesConfig);
         }
 
         @Override
         public String encrypt(String content, SecureApiPropertiesConfig secureApiPropertiesConfig) {
-            return CipherAlgorithmEnum.symmetricEncrypt(content, new CipherUtils(this), secureApiPropertiesConfig);
+            return CipherAlgorithmEnum.symmetricEncrypt(content, this, secureApiPropertiesConfig);
         }
 
         @Override
         public String decrypt(String content, SecureApiPropertiesConfig secureApiPropertiesConfig) {
-            return CipherAlgorithmEnum.symmetricDecrypt(content, new CipherUtils(this), secureApiPropertiesConfig);
+            return CipherAlgorithmEnum.symmetricDecrypt(content, this, secureApiPropertiesConfig);
         }
     },
     DES_EDE_ECB_NO_PADDING(KeyGenAlgorithmEnum.DES_EDE, "DESede/ECB/NoPadding", 8, 16) {
         @Override
         public void generateKeyIfAbsent(SecureApiPropertiesConfig secureApiPropertiesConfig) {
-            CipherAlgorithmEnum.generateEcbKeyIfAbsent(new CipherUtils(this), secureApiPropertiesConfig);
+            CipherAlgorithmEnum.generateEcbKeyIfAbsent(this, secureApiPropertiesConfig);
         }
 
         @Override
         public String encrypt(String content, SecureApiPropertiesConfig secureApiPropertiesConfig) {
-            return CipherAlgorithmEnum.symmetricEncrypt(content, new CipherUtils(this), secureApiPropertiesConfig);
+            return CipherAlgorithmEnum.symmetricEncrypt(content, this, secureApiPropertiesConfig);
         }
 
         @Override
         public String decrypt(String content, SecureApiPropertiesConfig secureApiPropertiesConfig) {
-            return CipherAlgorithmEnum.symmetricDecrypt(content, new CipherUtils(this), secureApiPropertiesConfig);
+            return CipherAlgorithmEnum.symmetricDecrypt(content, this, secureApiPropertiesConfig);
         }
     },
     DES_EDE_ECB_PKCS5(KeyGenAlgorithmEnum.DES_EDE, "DESede/ECB/PKCS5Padding", 8, 0) {
         @Override
         public void generateKeyIfAbsent(SecureApiPropertiesConfig secureApiPropertiesConfig) {
-            CipherAlgorithmEnum.generateEcbKeyIfAbsent(new CipherUtils(this), secureApiPropertiesConfig);
+            CipherAlgorithmEnum.generateEcbKeyIfAbsent(this, secureApiPropertiesConfig);
         }
 
         @Override
         public String encrypt(String content, SecureApiPropertiesConfig secureApiPropertiesConfig) {
-            return CipherAlgorithmEnum.symmetricEncrypt(content, new CipherUtils(this), secureApiPropertiesConfig);
+            return CipherAlgorithmEnum.symmetricEncrypt(content, this, secureApiPropertiesConfig);
         }
 
         @Override
         public String decrypt(String content, SecureApiPropertiesConfig secureApiPropertiesConfig) {
-            return CipherAlgorithmEnum.symmetricDecrypt(content, new CipherUtils(this), secureApiPropertiesConfig);
+            return CipherAlgorithmEnum.symmetricDecrypt(content, this, secureApiPropertiesConfig);
         }
     },
     RSA_ECB_PKCS1(KeyGenAlgorithmEnum.RSA, "RSA/ECB/PKCS1Padding", 0, 0) {
         @Override
         public void generateKeyIfAbsent(SecureApiPropertiesConfig secureApiPropertiesConfig) {
-            CipherAlgorithmEnum.generateRsaKeyIfAbsent(new CipherUtils(this), secureApiPropertiesConfig);
+            CipherAlgorithmEnum.generateRsaKeyIfAbsent(this, secureApiPropertiesConfig);
         }
 
         @Override
         public String encrypt(String content, SecureApiPropertiesConfig secureApiPropertiesConfig) {
-            return CipherAlgorithmEnum.rsaEncrypt(content, new CipherUtils(this), secureApiPropertiesConfig);
+            return CipherAlgorithmEnum.rsaEncrypt(content, this, secureApiPropertiesConfig);
         }
 
         @Override
         public String decrypt(String content, SecureApiPropertiesConfig secureApiPropertiesConfig) {
-            return CipherAlgorithmEnum.rsaDecrypt(content, new CipherUtils(this), secureApiPropertiesConfig);
+            return CipherAlgorithmEnum.rsaDecrypt(content, this, secureApiPropertiesConfig);
         }
     },
     RSA_ECB_SHA1(KeyGenAlgorithmEnum.RSA, "RSA/ECB/OAEPWithSHA-1AndMGF1Padding", 0, 0) {
         @Override
         public void generateKeyIfAbsent(SecureApiPropertiesConfig secureApiPropertiesConfig) {
-            CipherAlgorithmEnum.generateRsaKeyIfAbsent(new CipherUtils(this), secureApiPropertiesConfig);
+            CipherAlgorithmEnum.generateRsaKeyIfAbsent(this, secureApiPropertiesConfig);
         }
 
         @Override
         public String encrypt(String content, SecureApiPropertiesConfig secureApiPropertiesConfig) {
-            return CipherAlgorithmEnum.rsaEncrypt(content, new CipherUtils(this), secureApiPropertiesConfig);
+            return CipherAlgorithmEnum.rsaEncrypt(content, this, secureApiPropertiesConfig);
         }
 
         @Override
         public String decrypt(String content, SecureApiPropertiesConfig secureApiPropertiesConfig) {
-            return CipherAlgorithmEnum.rsaDecrypt(content, new CipherUtils(this), secureApiPropertiesConfig);
+            return CipherAlgorithmEnum.rsaDecrypt(content, this, secureApiPropertiesConfig);
         }
     },
     RSA_ECB_SHA256(KeyGenAlgorithmEnum.RSA, "RSA/ECB/OAEPWithSHA-256AndMGF1Padding", 0, 0) {
         @Override
         public void generateKeyIfAbsent(SecureApiPropertiesConfig secureApiPropertiesConfig) {
-            CipherAlgorithmEnum.generateRsaKeyIfAbsent(new CipherUtils(this), secureApiPropertiesConfig);
+            CipherAlgorithmEnum.generateRsaKeyIfAbsent(this, secureApiPropertiesConfig);
         }
 
         @Override
         public String encrypt(String content, SecureApiPropertiesConfig secureApiPropertiesConfig) {
-            return CipherAlgorithmEnum.rsaEncrypt(content, new CipherUtils(this), secureApiPropertiesConfig);
+            return CipherAlgorithmEnum.rsaEncrypt(content, this, secureApiPropertiesConfig);
         }
 
         @Override
         public String decrypt(String content, SecureApiPropertiesConfig secureApiPropertiesConfig) {
-            return CipherAlgorithmEnum.rsaDecrypt(content, new CipherUtils(this), secureApiPropertiesConfig);
+            return CipherAlgorithmEnum.rsaDecrypt(content, this, secureApiPropertiesConfig);
         }
     },
     ;
@@ -312,29 +312,33 @@ public enum CipherAlgorithmEnum {
 
     public abstract String decrypt(String content, SecureApiPropertiesConfig secureApiPropertiesConfig);
 
-    private static void generateEcbKeyIfAbsent(CipherUtils cipherUtils, SecureApiPropertiesConfig secureApiPropertiesConfig) {
+    private static void generateEcbKeyIfAbsent(CipherAlgorithmEnum cipherAlgorithmEnum, SecureApiPropertiesConfig secureApiPropertiesConfig) {
         if (!StringUtils.hasText(secureApiPropertiesConfig.getKey())) {
+            CipherUtils cipherUtils = new CipherUtils(cipherAlgorithmEnum, secureApiPropertiesConfig.isUrlSafe());
             String randomSecreteKey = cipherUtils.getRandomSecreteKey();
             log.info("\n您未配置接口加解密key，生成随机key，请妥善保存：{}", randomSecreteKey);
             secureApiPropertiesConfig.setKey(randomSecreteKey);
         }
     }
 
-    private static void generateCbcKeyIfAbsent(CipherUtils cipherUtils, SecureApiPropertiesConfig secureApiPropertiesConfig) {
+    private static void generateCbcKeyIfAbsent(CipherAlgorithmEnum cipherAlgorithmEnum, SecureApiPropertiesConfig secureApiPropertiesConfig) {
         if (!StringUtils.hasText(secureApiPropertiesConfig.getKey())) {
+            CipherUtils cipherUtils = new CipherUtils(cipherAlgorithmEnum, secureApiPropertiesConfig.isUrlSafe());
             String randomSecreteKey = cipherUtils.getRandomSecreteKey();
             log.info("\n您未配置接口加解密key，生成随机key，请妥善保存\nkey：{}", randomSecreteKey);
             secureApiPropertiesConfig.setKey(randomSecreteKey);
         }
         if (!StringUtils.hasText(secureApiPropertiesConfig.getIv())) {
+            CipherUtils cipherUtils = new CipherUtils(cipherAlgorithmEnum, secureApiPropertiesConfig.isUrlSafe());
             String randomIv = cipherUtils.getRandomIv();
             log.info("\n您未配置接口加解密iv，生成随机iv，请妥善保存\niv：{}", randomIv);
             secureApiPropertiesConfig.setIv(randomIv);
         }
     }
 
-    private static void generateRsaKeyIfAbsent(CipherUtils cipherUtils, SecureApiPropertiesConfig secureApiPropertiesConfig) {
+    private static void generateRsaKeyIfAbsent(CipherAlgorithmEnum cipherAlgorithmEnum, SecureApiPropertiesConfig secureApiPropertiesConfig) {
         if (!StringUtils.hasText(secureApiPropertiesConfig.getPublicKey()) || !StringUtils.hasText(secureApiPropertiesConfig.getPrivateKey())) {
+            CipherUtils cipherUtils = new CipherUtils(cipherAlgorithmEnum, secureApiPropertiesConfig.isUrlSafe());
             RsaKeyPair rsaKeyPair = cipherUtils.getRandomRsaKeyPair();
             secureApiPropertiesConfig.setPublicKey(rsaKeyPair.getPublicKey());
             secureApiPropertiesConfig.setPrivateKey(rsaKeyPair.getPrivateKey());
@@ -342,19 +346,23 @@ public enum CipherAlgorithmEnum {
         }
     }
 
-    private static String symmetricEncrypt(String content, CipherUtils cipherUtils, SecureApiPropertiesConfig secureApiPropertiesConfig) {
+    private static String symmetricEncrypt(String content, CipherAlgorithmEnum cipherAlgorithmEnum, SecureApiPropertiesConfig secureApiPropertiesConfig) {
+        CipherUtils cipherUtils = new CipherUtils(cipherAlgorithmEnum, secureApiPropertiesConfig.isUrlSafe());
         return cipherUtils.encrypt(content, secureApiPropertiesConfig.getKey(), secureApiPropertiesConfig.getIv());
     }
 
-    private static String rsaEncrypt(String content, CipherUtils cipherUtils, SecureApiPropertiesConfig secureApiPropertiesConfig) {
+    private static String rsaEncrypt(String content, CipherAlgorithmEnum cipherAlgorithmEnum, SecureApiPropertiesConfig secureApiPropertiesConfig) {
+        CipherUtils cipherUtils = new CipherUtils(cipherAlgorithmEnum, secureApiPropertiesConfig.isUrlSafe());
         return cipherUtils.encrypt(content, secureApiPropertiesConfig.getPublicKey());
     }
 
-    private static String symmetricDecrypt(String content, CipherUtils cipherUtils, SecureApiPropertiesConfig secureApiPropertiesConfig) {
+    private static String symmetricDecrypt(String content, CipherAlgorithmEnum cipherAlgorithmEnum, SecureApiPropertiesConfig secureApiPropertiesConfig) {
+        CipherUtils cipherUtils = new CipherUtils(cipherAlgorithmEnum, secureApiPropertiesConfig.isUrlSafe());
         return cipherUtils.decrypt(content, secureApiPropertiesConfig.getKey(), secureApiPropertiesConfig.getIv());
     }
 
-    private static String rsaDecrypt(String content, CipherUtils cipherUtils, SecureApiPropertiesConfig secureApiPropertiesConfig) {
+    private static String rsaDecrypt(String content, CipherAlgorithmEnum cipherAlgorithmEnum, SecureApiPropertiesConfig secureApiPropertiesConfig) {
+        CipherUtils cipherUtils = new CipherUtils(cipherAlgorithmEnum, secureApiPropertiesConfig.isUrlSafe());
         return cipherUtils.decrypt(content, secureApiPropertiesConfig.getPrivateKey());
     }
 }

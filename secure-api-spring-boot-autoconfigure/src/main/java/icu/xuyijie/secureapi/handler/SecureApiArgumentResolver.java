@@ -60,7 +60,7 @@ public class SecureApiArgumentResolver implements HandlerMethodArgumentResolver 
         if (hasDecryptParam && StringUtils.hasText(decryptParam.value())) {
             parameterName = decryptParam.value();
         }
-        // 得到参数参数值
+        // 得到参数参数值，因为前端传来的密文一定是字符串，所以这里就不需要做类型处理了，类型处理在解密以后
         String parameterValue = webRequest.getParameter(parameterName);
         // 获取参数类型
         Class<?> parameterType = parameter.getParameterType();
@@ -76,13 +76,15 @@ public class SecureApiArgumentResolver implements HandlerMethodArgumentResolver 
         // 参数不为空并且解密成功，解密后要自行处理各种类型
         Object result = null;
         if (parameterValue != null) {
+            // 特点参数类型需要处理成对象，不需要处理的类型保持原值
             result = getObjectByType(parameterType, parameterValue);
             if (result == null) {
                 result = parameterValue;
             }
         } else {
+            // 对象类型情况
             try {
-                // 对象类型，获取对象
+                // 获取对象
                 result = parameterType.getDeclaredConstructor().newInstance();
                 // 获取对象内字段
                 for (Field field : parameterType.getDeclaredFields()) {
@@ -115,6 +117,7 @@ public class SecureApiArgumentResolver implements HandlerMethodArgumentResolver 
                 }
             }
         }
+
         // springboot处理参数类型
         if (binderFactory != null) {
             WebDataBinder binder = binderFactory.createBinder(webRequest, null, parameterName);

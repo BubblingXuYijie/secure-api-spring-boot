@@ -1,6 +1,7 @@
 secure-api:
   enabled: false
   show-log: true
+  url-safe: true
   mode: common
   cipher-algorithm: rsa_ecb_sha256
   session-key-cipher-algorithm: aes_ecb_pkcs5

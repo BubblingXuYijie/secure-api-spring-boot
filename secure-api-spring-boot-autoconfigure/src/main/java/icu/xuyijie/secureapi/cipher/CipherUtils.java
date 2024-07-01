@@ -26,6 +26,11 @@ public class CipherUtils {
     private final Logger log = LoggerFactory.getLogger(CipherUtils.class);
 
     /**
+     * 生成的base64是否是urlSafe的
+     */
+    private final boolean isUrlSafe;
+
+    /**
      * 加密算法
      */
     private final KeyGenAlgorithmEnum keyGenAlgorithmEnum;
@@ -46,11 +51,19 @@ public class CipherUtils {
     private String paddingString = "";
 
     public CipherUtils() {
+        this.isUrlSafe = true;
         this.keyGenAlgorithmEnum = KeyGenAlgorithmEnum.AES;
         this.cipherAlgorithmEnum = CipherAlgorithmEnum.AES_ECB_PKCS5;
     }
 
     public CipherUtils(CipherAlgorithmEnum cipherAlgorithmEnum) {
+        this.isUrlSafe = true;
+        this.keyGenAlgorithmEnum = cipherAlgorithmEnum.getKeyGenEnum();
+        this.cipherAlgorithmEnum = cipherAlgorithmEnum;
+    }
+
+    public CipherUtils(CipherAlgorithmEnum cipherAlgorithmEnum, boolean isUrlSafe) {
+        this.isUrlSafe = isUrlSafe;
         this.keyGenAlgorithmEnum = cipherAlgorithmEnum.getKeyGenEnum();
         this.cipherAlgorithmEnum = cipherAlgorithmEnum;
     }
@@ -110,7 +123,8 @@ public class CipherUtils {
      * @return 随机iv
      */
     public String getRandomIv(String seed) {
-        return getRandomString(cipherAlgorithmEnum.getIvLength(), seed);
+        String randomString = getRandomString(cipherAlgorithmEnum.getIvLength(), seed);
+        return byte2Base64(randomString.getBytes(StandardCharsets.UTF_8));
     }
 
     /**
@@ -249,7 +263,7 @@ public class CipherUtils {
             byte[] byteContent = content.getBytes(StandardCharsets.UTF_8);
             // 初始化为加密模式的密码器，ECB模式不设置iv
             if (StringUtils.hasText(iv)) {
-                IvParameterSpec ivParameterSpec = new IvParameterSpec(iv.getBytes(StandardCharsets.UTF_8));
+                IvParameterSpec ivParameterSpec = new IvParameterSpec(base642Byte(iv));
                 cipher.init(Cipher.ENCRYPT_MODE, getSecretKeySpec(key), ivParameterSpec);
             } else {
                 cipher.init(Cipher.ENCRYPT_MODE, getSecretKeySpec(key));
@@ -320,7 +334,7 @@ public class CipherUtils {
             Cipher cipher = Cipher.getInstance(cipherAlgorithmEnum.getValue());
             //使用密钥初始化，设置为解密模式，ECB模式不设置iv
             if (StringUtils.hasText(iv)) {
-                IvParameterSpec ivParameterSpec = new IvParameterSpec(iv.getBytes(StandardCharsets.UTF_8));
+                IvParameterSpec ivParameterSpec = new IvParameterSpec(base642Byte(iv));
                 cipher.init(Cipher.DECRYPT_MODE, getSecretKeySpec(key), ivParameterSpec);
             } else {
                 cipher.init(Cipher.DECRYPT_MODE, getSecretKeySpec(key));
@@ -376,7 +390,11 @@ public class CipherUtils {
      * @return Base64
      */
     private String byte2Base64(byte[] bytes) {
-        return Base64.getUrlEncoder().encodeToString(bytes);
+        if (isUrlSafe) {
+            return Base64.getUrlEncoder().encodeToString(bytes);
+        } else {
+            return Base64.getEncoder().encodeToString(bytes);
+        }
     }
 
     /**
@@ -386,36 +404,39 @@ public class CipherUtils {
      * @return 字节数组
      */
     private byte[] base642Byte(String base64Str) {
-        return Base64.getUrlDecoder().decode(base64Str);
+        if (isUrlSafe) {
+            return Base64.getUrlDecoder().decode(base64Str);
+        } else {
+            return Base64.getDecoder().decode(base64Str);
+        }
     }
 
-    public static void main(String[] args) {
-        CipherUtils cipherUtils = new CipherUtils(CipherAlgorithmEnum.AES_CBC_PKCS5);
-        // 中文转为字符数组占3个长度
-        String content = "hello,您好！《》\\/";
-        System.out.println("原文=" + content);
-
-        //也可以getAesRandomKey()
-        String key = cipherUtils.getRandomSecreteKey("1");
-        String iv = cipherUtils.getRandomIv("1");
-        System.out.println("key：" + key + "，iv：" + iv);
-
-        String s1 = cipherUtils.encrypt(content, key, iv);
-        System.out.println("加密结果=" + s1);
-
-        System.out.println("解密结果=" + cipherUtils.decrypt(s1, key, iv));
-
-        content = new HashSet<>(List.of("a", 1, "b", 2, "c", 3)).toString();
-        content = Map.of("a", "哈哈", "b", "1", "c", "嘿嘿").toString();
-        cipherUtils = new CipherUtils(CipherAlgorithmEnum.RSA_ECB_SHA256);
-        RsaKeyPair rsaKeyPair = cipherUtils.getRandomRsaKeyPair("1");
-        System.out.println("RSA 公钥key：" + rsaKeyPair.getPublicKey() + "，私钥key：" + rsaKeyPair.getPrivateKey());
-        String s2 = cipherUtils.encrypt(content, rsaKeyPair.getPublicKey());
-        System.out.println("RSA加密结果=" + s2);
-
-        String decrypt = cipherUtils.decrypt(s2, rsaKeyPair.getPrivateKey());
-        System.out.println("RSA解密结果=" + decrypt);
-        System.out.println(decrypt);
-    }
+//    public static void main(String[] args) {
+//        CipherUtils cipherUtils = new CipherUtils(CipherAlgorithmEnum.AES_CBC_PKCS5, true);
+//        // 中文转为字符数组占3个长度
+//        String content = "hello,您好！《》\\/";
+//        System.out.println("原文=" + content);
+//
+//        String key = cipherUtils.getRandomSecreteKey("1");
+//        String iv = cipherUtils.getRandomIv("1");
+//        System.out.println("key：" + key + "，iv：" + iv);
+//
+//        String s1 = cipherUtils.encrypt(content, key, iv);
+//        System.out.println("加密结果=" + s1);
+//
+//        System.out.println("解密结果=" + cipherUtils.decrypt(s1, key, iv));
+//
+//        content = new HashSet<>(List.of("a", 1, "b", 2, "c", 3)).toString();
+//        content = Map.of("a", "哈哈", "b", "1", "c", "嘿嘿").toString();
+//        cipherUtils = new CipherUtils(CipherAlgorithmEnum.RSA_ECB_SHA256);
+//        RsaKeyPair rsaKeyPair = cipherUtils.getRandomRsaKeyPair("1");
+//        System.out.println("RSA 公钥key：" + rsaKeyPair.getPublicKey() + "，私钥key：" + rsaKeyPair.getPrivateKey());
+//        String s2 = cipherUtils.encrypt(content, rsaKeyPair.getPublicKey());
+//        System.out.println("RSA加密结果=" + s2);
+//
+//        String decrypt = cipherUtils.decrypt(s2, rsaKeyPair.getPrivateKey());
+//        System.out.println("RSA解密结果=" + decrypt);
+//        System.out.println(decrypt);
+//    }
 
 }

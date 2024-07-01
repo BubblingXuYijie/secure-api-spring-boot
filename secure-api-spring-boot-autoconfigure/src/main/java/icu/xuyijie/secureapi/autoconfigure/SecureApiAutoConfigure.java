@@ -43,7 +43,7 @@ public class SecureApiAutoConfigure {
     public CipherUtils cipherUtils(SecureApiPropertiesConfig secureApiPropertiesConfig) {
         // 初始化CipherUtils
         CipherAlgorithmEnum cipherAlgorithmEnum = secureApiPropertiesConfig.getCipherAlgorithmEnum();
-        CipherUtils cipherUtils = new CipherUtils(cipherAlgorithmEnum);
+        CipherUtils cipherUtils = new CipherUtils(cipherAlgorithmEnum, secureApiPropertiesConfig.isUrlSafe());
         // 开启接口加密，初始化各项参数，打印日志
         if (secureApiPropertiesConfig.isEnabled()) {
             // 检测加密模式配置是否正确
