@@ -3,6 +3,8 @@ package icu.xuyijie.secureapi.handler;
 import icu.xuyijie.secureapi.annotation.DecryptParam;
 import icu.xuyijie.secureapi.model.SecureApiPropertiesConfig;
 import icu.xuyijie.secureapi.threadlocal.SecureApiThreadLocal;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.ConversionNotSupportedException;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.core.MethodParameter;
@@ -21,6 +23,7 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.*;
 
 /**
@@ -30,6 +33,7 @@ import java.util.*;
  */
 @Component
 public class SecureApiArgumentResolver implements HandlerMethodArgumentResolver {
+    private final Logger log = LoggerFactory.getLogger(SecureApiArgumentResolver.class);
     private final SecureApiPropertiesConfig secureApiPropertiesConfig;
 
     public SecureApiArgumentResolver(SecureApiPropertiesConfig secureApiPropertiesConfig) {
@@ -38,14 +42,16 @@ public class SecureApiArgumentResolver implements HandlerMethodArgumentResolver 
 
     @Override
     public boolean supportsParameter(@NonNull MethodParameter parameter) {
-        boolean parameterAnnotation = parameter.hasParameterAnnotation(DecryptParam.class);
-        // 获取参数类型
-        Class<?> parameterType = parameter.getParameterType();
-        // 根据参数类型，获取对象，如果对象为空，可能是实体类，放行，下面会检测实体类字段哪些需要解密
-        Object o = getObjectByType(parameterType, "");
-        // 三种情况走这个处理器：1、配置了解密url并参数没有加@RequestParam、@RequestPart注解。2、参数加了@DecryptParam注解。3、参数是实体类
-        // 即使在 SecureApi 的 enable 设置为 false 也会走这个处理器，可以保留 @DecryptParam 的基本解析功能，目前是这样设计的
-        return SecureApiThreadLocal.getIsDecryptApi() || parameterAnnotation || o == null;
+        if (secureApiPropertiesConfig.isEnabled()) {
+            boolean parameterAnnotation = parameter.hasParameterAnnotation(DecryptParam.class);
+            // 获取参数类型
+            Class<?> parameterType = parameter.getParameterType();
+            // 根据参数类型，获取对象，如果对象为空，可能是实体类，放行，下面会检测实体类字段哪些需要解密
+            Object o = getObjectByType(parameterType, "");
+            // 三种情况走这个处理器：1、配置了解密url并参数没有加@RequestParam、@RequestPart注解。2、参数加了@DecryptParam注解。3、参数是实体类
+            return SecureApiThreadLocal.getIsDecryptApi() || parameterAnnotation || o == null;
+        }
+        return false;
     }
 
     @Override
@@ -62,57 +68,79 @@ public class SecureApiArgumentResolver implements HandlerMethodArgumentResolver 
             parameterName = decryptParam.value();
         }
         // 得到参数参数值，因为前端传来的密文一定是字符串，所以这里就不需要做类型处理了，类型处理在解密以后
-        String parameterValue = webRequest.getParameter(parameterName);
+        String encryptParam = webRequest.getParameter(parameterName);
+        String parameterValue = encryptParam;
         // 获取参数类型
         Class<?> parameterType = parameter.getParameterType();
         // 参数值为null并且DecryptParam注解要求参数必传并且没有设置defaultValue，抛出异常
-        if (parameterValue == null && hasDecryptParam && decryptParam.required() && !StringUtils.hasText(decryptParam.defaultValue())) {
-            throw new MissingServletRequestParameterException(decryptParam.value(), parameterType.getTypeName());
+        boolean isDefaultValue = false;
+        if (parameterValue == null && hasDecryptParam) {
+            if (decryptParam.required() && !StringUtils.hasText(decryptParam.defaultValue())) {
+                throw new MissingServletRequestParameterException(decryptParam.value(), parameterType.getTypeName());
+            }
+            if (StringUtils.hasText(decryptParam.defaultValue())) {
+                parameterValue = decryptParam.defaultValue();
+                isDefaultValue = true;
+            }
         }
         // 解密参数值，这里再判断一次是应对实体类作为参数的情况，参数是实体类时 @DecryptParam 注解夹在字段上，无法在 supportsParameter 方法中判断，只能进入到这里判断
-        boolean isDecryptParam = (SecureApiThreadLocal.getIsDecryptApi() || hasDecryptParam) && secureApiPropertiesConfig.isEnabled();
+        boolean isDecryptParam = (SecureApiThreadLocal.getIsDecryptApi() || hasDecryptParam) && !isDefaultValue && secureApiPropertiesConfig.isEnabled();
         if (isDecryptParam) {
             parameterValue = CipherModeHandler.handleDecryptMode(parameterValue, secureApiPropertiesConfig);
+            showLog(parameterName, encryptParam, parameterValue);
         }
         // 参数不为空并且解密成功，解密后要自行处理各种类型
         Object result = null;
         if (parameterValue != null) {
-            // 特点参数类型需要处理成对象，不需要处理的类型保持原值
+            // 特定参数类型需要处理成对象，不需要处理的类型保持原值
             result = getObjectByType(parameterType, parameterValue);
             if (result == null) {
                 result = parameterValue;
             }
         } else {
-            // 对象类型情况
+            // 自定义的实体类类型情况
             try {
-                // 获取对象
+                // 实例化对象
                 result = parameterType.getDeclaredConstructor().newInstance();
                 // 获取对象内字段
                 for (Field field : parameterType.getDeclaredFields()) {
-                    // 获取对应字段参数值
-                    String objectParameterValue = webRequest.getParameter(field.getName());
-                    boolean fieldAnnotationPresent = field.isAnnotationPresent(DecryptParam.class);
-                    boolean isDecryptField = (fieldAnnotationPresent || SecureApiThreadLocal.getIsDecryptApi()) && secureApiPropertiesConfig.isEnabled();
-                    if (isDecryptField) {
-                        // 解密字段参数值
-                        objectParameterValue = CipherModeHandler.handleDecryptMode(objectParameterValue, secureApiPropertiesConfig);
+                    String fieldName = field.getName();
+                    try {
+                        if (Modifier.isFinal(field.getModifiers())) {
+                            continue;
+                        }
+                        // 获取对应字段参数值
+                        String encryptField = webRequest.getParameter(fieldName);
+                        String objectParameterValue = encryptField;
+                        boolean fieldAnnotationPresent = field.isAnnotationPresent(DecryptParam.class);
+                        boolean isDecryptField = (fieldAnnotationPresent || SecureApiThreadLocal.getIsDecryptApi()) && secureApiPropertiesConfig.isEnabled();
+                        if (isDecryptField) {
+                            // 解密字段参数值
+                            objectParameterValue = CipherModeHandler.handleDecryptMode(objectParameterValue, secureApiPropertiesConfig);
+                            showLog(parameterType.getSimpleName() + "." + fieldName, encryptField, objectParameterValue);
+                        }
+                        // 获取字段类型
+                        Class<?> fieldType = field.getType();
+                        // 获取字段包装类型
+                        Class<?> fieldPackageType = ClassUtils.resolvePrimitiveIfNecessary(fieldType);
+                        // 设置对象字段值
+                        Object o = getObjectByType(fieldPackageType, objectParameterValue);
+                        if (StringUtils.hasText(objectParameterValue) && o == null) {
+                            // 转换String字符串为实体类字段类型
+                            Constructor<?> constructor = fieldPackageType.getConstructor(objectParameterValue.getClass());
+                            o = constructor.newInstance(objectParameterValue);
+                        }
+                        if (o != null) {
+                            field.setAccessible(true);
+                            field.set(result, o);
+                        }
+                    } catch (Exception e) {
+                        // 出现异常跳过此字段值的设置
+                        log.error("实体类字段：{} 设置出现异常，跳过此字段值的设置", parameterType.getSimpleName() + "." + fieldName, e);
                     }
-                    // 获取字段类型
-                    Class<?> fieldType = field.getType();
-                    // 获取字段包装类型
-                    Class<?> fieldPackageType = ClassUtils.resolvePrimitiveIfNecessary(fieldType);
-                    // 设置对象字段值
-                    Object o = getObjectByType(fieldPackageType, objectParameterValue);
-                    if (StringUtils.hasText(objectParameterValue) && o == null) {
-                        // 转换String类型为实体类字段类型
-                        Constructor<?> constructor = fieldPackageType.getConstructor(objectParameterValue.getClass());
-                        o = constructor.newInstance(objectParameterValue);
-                    }
-                    field.setAccessible(true);
-                    field.set(result, o);
                 }
             } catch (Exception e) {
-                // 参数解密失败或者参数为空不解密返回defaultValue
+                // 参数解密失败或者参数不是实体类而是为null不解密返回defaultValue
                 if (hasDecryptParam && StringUtils.hasText(decryptParam.defaultValue())) {
                     result = decryptParam.defaultValue();
                 }
@@ -130,6 +158,7 @@ public class SecureApiArgumentResolver implements HandlerMethodArgumentResolver 
                 throw new MethodArgumentTypeMismatchException(result, ex.getRequiredType(), parameterName, parameter, ex.getCause());
             }
         }
+
         return result;
     }
 
@@ -179,6 +208,12 @@ public class SecureApiArgumentResolver implements HandlerMethodArgumentResolver 
             }
         }
         return o;
+    }
+
+    private void showLog(String paramName, String encryptString, String decryptString) {
+        if (secureApiPropertiesConfig.isShowLog()) {
+            log.info("接口param/formData参数解密，参数名：{}，解密前：{}，解密后：{}", paramName, encryptString, decryptString);
+        }
     }
 
 }

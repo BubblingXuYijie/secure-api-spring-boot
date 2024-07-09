@@ -18,7 +18,7 @@ import java.util.Set;
 @RequestMapping("secureApiTest")
 public class TestController {
     @RequestMapping("/testForm")
-    public int testForm(User user, @DecryptParam Integer age,  @DecryptParam Map<String, String> map, @DecryptParam Set<String> set) {
+    public int testForm(User user, @DecryptParam Integer age,  @DecryptParam Map<String, String> map, @DecryptParam(required = false) Set<String> set) {
         System.out.println(user);
         System.out.println(age);
         System.out.println(map);
