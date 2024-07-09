@@ -43,7 +43,8 @@ public class SecureApiArgumentResolver implements HandlerMethodArgumentResolver 
         Class<?> parameterType = parameter.getParameterType();
         // 根据参数类型，获取对象，如果对象为空，可能是实体类，放行，下面会检测实体类字段哪些需要解密
         Object o = getObjectByType(parameterType, "");
-        // 三种情况走这个处理器：1、配置了解密url并参数没有加@RequestParam、@RequestPart注解。2、参数加了DecryptParam注解。3、参数是实体类
+        // 三种情况走这个处理器：1、配置了解密url并参数没有加@RequestParam、@RequestPart注解。2、参数加了@DecryptParam注解。3、参数是实体类
+        // 即使在 SecureApi 的 enable 设置为 false 也会走这个处理器，可以保留 @DecryptParam 的基本解析功能，目前是这样设计的
         return SecureApiThreadLocal.getIsDecryptApi() || parameterAnnotation || o == null;
     }
 
@@ -68,7 +69,7 @@ public class SecureApiArgumentResolver implements HandlerMethodArgumentResolver 
         if (parameterValue == null && hasDecryptParam && decryptParam.required() && !StringUtils.hasText(decryptParam.defaultValue())) {
             throw new MissingServletRequestParameterException(decryptParam.value(), parameterType.getTypeName());
         }
-        // 解密参数值，这里再判断一次是应对实体类和普通字段同时作为参数时的情况
+        // 解密参数值，这里再判断一次是应对实体类作为参数的情况，参数是实体类时 @DecryptParam 注解夹在字段上，无法在 supportsParameter 方法中判断，只能进入到这里判断
         boolean isDecryptParam = (SecureApiThreadLocal.getIsDecryptApi() || hasDecryptParam) && secureApiPropertiesConfig.isEnabled();
         if (isDecryptParam) {
             parameterValue = CipherModeHandler.handleDecryptMode(parameterValue, secureApiPropertiesConfig);
@@ -160,7 +161,7 @@ public class SecureApiArgumentResolver implements HandlerMethodArgumentResolver 
         }
         Object o = null;
         if (List.class.isAssignableFrom(parameterType)) {
-            o = Arrays.asList(handleListString(parameterValue));
+            o = new ArrayList<>(Arrays.asList(handleListString(parameterValue)));
         } else if (Set.class.isAssignableFrom(parameterType)) {
             o = new HashSet<>(Arrays.asList(handleListString(parameterValue)));
         } else if (Queue.class.isAssignableFrom(parameterType)) {
