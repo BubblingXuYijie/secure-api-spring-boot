@@ -104,33 +104,40 @@ public class SecureApiArgumentResolver implements HandlerMethodArgumentResolver 
                 result = parameterType.getDeclaredConstructor().newInstance();
                 // 获取对象内字段
                 for (Field field : parameterType.getDeclaredFields()) {
-                    if (Modifier.isFinal(field.getModifiers())) {
-                        continue;
-                    }
-                    // 获取对应字段参数值
                     String fieldName = field.getName();
-                    String encryptField = webRequest.getParameter(fieldName);
-                    String objectParameterValue = encryptField;
-                    boolean fieldAnnotationPresent = field.isAnnotationPresent(DecryptParam.class);
-                    boolean isDecryptField = (fieldAnnotationPresent || SecureApiThreadLocal.getIsDecryptApi()) && secureApiPropertiesConfig.isEnabled();
-                    if (isDecryptField) {
-                        // 解密字段参数值
-                        objectParameterValue = CipherModeHandler.handleDecryptMode(objectParameterValue, secureApiPropertiesConfig);
-                        showLog(parameterType.getSimpleName() + "." + fieldName, encryptField, objectParameterValue);
+                    try {
+                        if (Modifier.isFinal(field.getModifiers())) {
+                            continue;
+                        }
+                        // 获取对应字段参数值
+                        String encryptField = webRequest.getParameter(fieldName);
+                        String objectParameterValue = encryptField;
+                        boolean fieldAnnotationPresent = field.isAnnotationPresent(DecryptParam.class);
+                        boolean isDecryptField = (fieldAnnotationPresent || SecureApiThreadLocal.getIsDecryptApi()) && secureApiPropertiesConfig.isEnabled();
+                        if (isDecryptField) {
+                            // 解密字段参数值
+                            objectParameterValue = CipherModeHandler.handleDecryptMode(objectParameterValue, secureApiPropertiesConfig);
+                            showLog(parameterType.getSimpleName() + "." + fieldName, encryptField, objectParameterValue);
+                        }
+                        // 获取字段类型
+                        Class<?> fieldType = field.getType();
+                        // 获取字段包装类型
+                        Class<?> fieldPackageType = ClassUtils.resolvePrimitiveIfNecessary(fieldType);
+                        // 设置对象字段值
+                        Object o = getObjectByType(fieldPackageType, objectParameterValue);
+                        if (StringUtils.hasText(objectParameterValue) && o == null) {
+                            // 转换String字符串为实体类字段类型
+                            Constructor<?> constructor = fieldPackageType.getConstructor(objectParameterValue.getClass());
+                            o = constructor.newInstance(objectParameterValue);
+                        }
+                        if (o != null) {
+                            field.setAccessible(true);
+                            field.set(result, o);
+                        }
+                    } catch (Exception e) {
+                        // 出现异常跳过此字段值的设置
+                        log.error("实体类字段：{} 设置出现异常，跳过此字段值的设置", parameterType.getSimpleName() + "." + fieldName, e);
                     }
-                    // 获取字段类型
-                    Class<?> fieldType = field.getType();
-                    // 获取字段包装类型
-                    Class<?> fieldPackageType = ClassUtils.resolvePrimitiveIfNecessary(fieldType);
-                    // 设置对象字段值
-                    Object o = getObjectByType(fieldPackageType, objectParameterValue);
-                    if (StringUtils.hasText(objectParameterValue) && o == null) {
-                        // 转换String类型为实体类字段类型
-                        Constructor<?> constructor = fieldPackageType.getConstructor(objectParameterValue.getClass());
-                        o = constructor.newInstance(objectParameterValue);
-                    }
-                    field.setAccessible(true);
-                    field.set(result, o);
                 }
             } catch (Exception e) {
                 // 参数解密失败或者参数不是实体类而是为null不解密返回defaultValue
