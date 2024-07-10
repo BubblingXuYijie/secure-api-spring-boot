@@ -73,18 +73,11 @@ public class SecureApiArgumentResolver implements HandlerMethodArgumentResolver 
         // 获取参数类型
         Class<?> parameterType = parameter.getParameterType();
         // 参数值为null并且DecryptParam注解要求参数必传并且没有设置defaultValue，抛出异常
-        boolean isDefaultValue = false;
-        if (parameterValue == null && hasDecryptParam) {
-            if (decryptParam.required() && !StringUtils.hasText(decryptParam.defaultValue())) {
-                throw new MissingServletRequestParameterException(decryptParam.value(), parameterType.getTypeName());
-            }
-            if (StringUtils.hasText(decryptParam.defaultValue())) {
-                parameterValue = decryptParam.defaultValue();
-                isDefaultValue = true;
-            }
+        if (parameterValue == null && hasDecryptParam && decryptParam.required() && !StringUtils.hasText(decryptParam.defaultValue())) {
+            throw new MissingServletRequestParameterException(decryptParam.value(), parameterType.getTypeName());
         }
         // 解密参数值，这里再判断一次是应对实体类作为参数的情况，参数是实体类时 @DecryptParam 注解夹在字段上，无法在 supportsParameter 方法中判断，只能进入到这里判断
-        boolean isDecryptParam = (SecureApiThreadLocal.getIsDecryptApi() || hasDecryptParam) && !isDefaultValue && secureApiPropertiesConfig.isEnabled();
+        boolean isDecryptParam = (SecureApiThreadLocal.getIsDecryptApi() || hasDecryptParam) && secureApiPropertiesConfig.isEnabled();
         if (isDecryptParam) {
             parameterValue = CipherModeHandler.handleDecryptMode(parameterValue, secureApiPropertiesConfig);
             showLog(parameterName, encryptParam, parameterValue);
@@ -98,7 +91,7 @@ public class SecureApiArgumentResolver implements HandlerMethodArgumentResolver 
                 result = parameterValue;
             }
         } else {
-            // 自定义的实体类类型或者传入值为null并没有设置defaultValue的情况
+            // 自定义的实体类类型或者传入值为null的情况
             try {
                 // 实例化对象
                 result = parameterType.getDeclaredConstructor().newInstance();
