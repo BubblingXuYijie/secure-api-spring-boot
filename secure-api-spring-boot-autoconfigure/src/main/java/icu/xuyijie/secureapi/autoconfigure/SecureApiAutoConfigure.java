@@ -22,7 +22,7 @@ import org.springframework.context.annotation.Bean;
 @EnableConfigurationProperties(SecureApiProperties.class)
 @AutoConfiguration
 public class SecureApiAutoConfigure {
-    private static final Logger log = LoggerFactory.getLogger(SecureApiAutoConfigure.class);
+    private final Logger log = LoggerFactory.getLogger(SecureApiAutoConfigure.class);
     private final SecureApiProperties secureApiProperties;
 
     public SecureApiAutoConfigure(SecureApiProperties secureApiProperties) {
