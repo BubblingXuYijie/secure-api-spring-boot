@@ -98,7 +98,7 @@ public class SecureApiArgumentResolver implements HandlerMethodArgumentResolver 
                 result = parameterValue;
             }
         } else {
-            // 自定义的实体类类型情况
+            // 自定义的实体类类型或者传入值为null并没有设置defaultValue的情况
             try {
                 // 实例化对象
                 result = parameterType.getDeclaredConstructor().newInstance();

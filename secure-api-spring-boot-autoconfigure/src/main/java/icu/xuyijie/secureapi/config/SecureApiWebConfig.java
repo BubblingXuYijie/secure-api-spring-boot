@@ -6,6 +6,7 @@ import icu.xuyijie.secureapi.interceptor.SecureApiEncryptPathInterceptor;
 import icu.xuyijie.secureapi.model.SecureApiProperties;
 import icu.xuyijie.secureapi.model.SecureApiPropertiesConfig;
 import org.springframework.boot.SpringBootConfiguration;
+import org.springframework.lang.NonNull;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -35,7 +36,7 @@ public class SecureApiWebConfig implements WebMvcConfigurer {
     }
 
     @Override
-    public void addInterceptors(InterceptorRegistry registry) {
+    public void addInterceptors(@NonNull InterceptorRegistry registry) {
         // 加载加密url拦截器
         addSecureApiPathInterceptor(registry, secureApiEncryptPathInterceptor, secureApiPropertiesConfig.getEncryptUrl());
         // 加载解密url拦截器

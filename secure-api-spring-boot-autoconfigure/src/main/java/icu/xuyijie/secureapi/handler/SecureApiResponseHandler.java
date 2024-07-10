@@ -26,7 +26,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 @EnableConfigurationProperties(SecureApiProperties.class)
 @RestControllerAdvice
 public class SecureApiResponseHandler implements ResponseBodyAdvice<Object> {
-    private static final Logger log = LoggerFactory.getLogger(SecureApiResponseHandler.class);
+    private final Logger log = LoggerFactory.getLogger(SecureApiResponseHandler.class);
 
     private final SecureApiPropertiesConfig secureApiPropertiesConfig;
 
