@@ -12,7 +12,7 @@
       "type": "java.lang.Boolean",
       "description": "是否开启接口加解密功能",
       "sourceType": "icu.xuyijie.secureapi.model.SecureApiProperties",
-      "defaultValue": true
+      "defaultValue": false
     },
     {
       "name": "secure-api.url-safe",

@@ -16,7 +16,7 @@ public class SecureApiProperties {
     /**
      * 是否开启接口加解密功能
      */
-    private boolean enabled = true;
+    private boolean enabled = false;
 
     /**
      * 生成的base64是否是urlSafe的
