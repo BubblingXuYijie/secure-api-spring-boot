@@ -2,6 +2,7 @@ package icu.xuyijie.secureapi.cipher;
 
 import icu.xuyijie.secureapi.exception.ErrorEnum;
 import icu.xuyijie.secureapi.exception.SecureApiException;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
@@ -66,6 +67,11 @@ public class CipherUtils {
         this.isUrlSafe = isUrlSafe;
         this.keyGenAlgorithmEnum = cipherAlgorithmEnum.getKeyGenEnum();
         this.cipherAlgorithmEnum = cipherAlgorithmEnum;
+    }
+
+    static {
+        // 添加BouncyCastle支持（用于SM4）
+        Security.addProvider(new BouncyCastleProvider());
     }
 
     public KeyGenAlgorithmEnum getKeyGenAlgorithmEnum() {
@@ -445,6 +451,15 @@ public class CipherUtils {
 //        String decrypt = cipherUtils.decrypt(s2, rsaKeyPair.getPrivateKey());
 //        System.out.println("RSA解密结果=" + decrypt);
 //        System.out.println(decrypt);
+//
+//        cipherUtils = new CipherUtils(CipherAlgorithmEnum.SM4_CBC_PKCS5);
+//        String plaintext = "41150320000416041X";
+//        key = cipherUtils.getRandomSecreteKey("1");
+//        iv = cipherUtils.getRandomIv("1");
+//        String encrypted = cipherUtils.encrypt(plaintext, key, iv);
+//        System.out.println("SM4 Encrypted: " + encrypted);
+//        String decrypted = cipherUtils.decrypt(encrypted, key, iv);
+//        System.out.println("SM4 Decrypted: " + decrypted);
 //    }
 
 }
