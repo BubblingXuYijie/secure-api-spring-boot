@@ -1,5 +1,6 @@
 package icu.xuyijie.interceptor;
 
+import icu.xuyijie.secureapi.model.SecureApiProperties;
 import icu.xuyijie.secureapi.model.SecureApiPropertiesConfig;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -26,9 +27,11 @@ public class SecureKeyInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull Object handler) {
         // 这里可以使用会话密钥，只需要在拦截器中修改secureApiPropertiesConfig的key值
-        String sessionKey = request.getHeader("sessionKey");
-        log.info("前端传来会话密钥：{}", sessionKey);
-        secureApiPropertiesConfig.setKey(sessionKey);
+        if (secureApiPropertiesConfig.getMode().equals(SecureApiProperties.Mode.SESSION_KEY)) {
+            String sessionKey = request.getHeader("sessionKey");
+            log.info("前端传来会话密钥：{}", sessionKey);
+            secureApiPropertiesConfig.setKey(sessionKey);
+        }
         return true;
     }
 }

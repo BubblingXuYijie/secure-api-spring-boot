@@ -206,6 +206,70 @@ public enum CipherAlgorithmEnum {
             return CipherAlgorithmEnum.symmetricDecrypt(content, this, secureApiPropertiesConfig);
         }
     },
+    SM4_CBC_NO_PADDING(KeyGenAlgorithmEnum.SM4, "SM4/CBC/NoPadding", 16, 16) {
+        @Override
+        public void generateKeyIfAbsent(SecureApiPropertiesConfig secureApiPropertiesConfig) {
+            CipherAlgorithmEnum.generateCbcKeyIfAbsent(this, secureApiPropertiesConfig);
+        }
+
+        @Override
+        public String encrypt(String content, SecureApiPropertiesConfig secureApiPropertiesConfig) {
+            return CipherAlgorithmEnum.symmetricEncrypt(content, this, secureApiPropertiesConfig);
+        }
+
+        @Override
+        public String decrypt(String content, SecureApiPropertiesConfig secureApiPropertiesConfig) {
+            return CipherAlgorithmEnum.symmetricDecrypt(content, this, secureApiPropertiesConfig);
+        }
+    },
+    SM4_CBC_PKCS5(KeyGenAlgorithmEnum.SM4, "SM4/CBC/PKCS5Padding", 16, 0) {
+        @Override
+        public void generateKeyIfAbsent(SecureApiPropertiesConfig secureApiPropertiesConfig) {
+            CipherAlgorithmEnum.generateCbcKeyIfAbsent(this, secureApiPropertiesConfig);
+        }
+
+        @Override
+        public String encrypt(String content, SecureApiPropertiesConfig secureApiPropertiesConfig) {
+            return CipherAlgorithmEnum.symmetricEncrypt(content, this, secureApiPropertiesConfig);
+        }
+
+        @Override
+        public String decrypt(String content, SecureApiPropertiesConfig secureApiPropertiesConfig) {
+            return CipherAlgorithmEnum.symmetricDecrypt(content, this, secureApiPropertiesConfig);
+        }
+    },
+    SM4_ECB_NO_PADDING(KeyGenAlgorithmEnum.SM4, "SM4/ECB/NoPadding", 16, 16) {
+        @Override
+        public void generateKeyIfAbsent(SecureApiPropertiesConfig secureApiPropertiesConfig) {
+            CipherAlgorithmEnum.generateEcbKeyIfAbsent(this, secureApiPropertiesConfig);
+        }
+
+        @Override
+        public String encrypt(String content, SecureApiPropertiesConfig secureApiPropertiesConfig) {
+            return CipherAlgorithmEnum.symmetricEncrypt(content, this, secureApiPropertiesConfig);
+        }
+
+        @Override
+        public String decrypt(String content, SecureApiPropertiesConfig secureApiPropertiesConfig) {
+            return CipherAlgorithmEnum.symmetricDecrypt(content, this, secureApiPropertiesConfig);
+        }
+    },
+    SM4_ECB_PKCS5(KeyGenAlgorithmEnum.SM4, "SM4/ECB/PKCS5Padding", 16, 0) {
+        @Override
+        public void generateKeyIfAbsent(SecureApiPropertiesConfig secureApiPropertiesConfig) {
+            CipherAlgorithmEnum.generateEcbKeyIfAbsent(this, secureApiPropertiesConfig);
+        }
+
+        @Override
+        public String encrypt(String content, SecureApiPropertiesConfig secureApiPropertiesConfig) {
+            return CipherAlgorithmEnum.symmetricEncrypt(content, this, secureApiPropertiesConfig);
+        }
+
+        @Override
+        public String decrypt(String content, SecureApiPropertiesConfig secureApiPropertiesConfig) {
+            return CipherAlgorithmEnum.symmetricDecrypt(content, this, secureApiPropertiesConfig);
+        }
+    },
     RSA_ECB_PKCS1(KeyGenAlgorithmEnum.RSA, "RSA/ECB/PKCS1Padding", 0, 0) {
         @Override
         public void generateKeyIfAbsent(SecureApiPropertiesConfig secureApiPropertiesConfig) {
