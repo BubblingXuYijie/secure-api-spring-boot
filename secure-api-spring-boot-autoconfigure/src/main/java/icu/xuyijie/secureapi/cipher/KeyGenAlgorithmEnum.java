@@ -12,6 +12,7 @@ public enum KeyGenAlgorithmEnum {
     AES("AES", 256),
     DES("DES", 56),
     DES_EDE("DESede", 168),
+    SM4("SM4", 128),
     RSA("RSA", 2048),
     ;
 
