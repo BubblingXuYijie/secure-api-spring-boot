@@ -16,6 +16,7 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
+import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.MethodArgumentConversionNotSupportedException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
@@ -95,43 +96,8 @@ public class SecureApiArgumentResolver implements HandlerMethodArgumentResolver 
             try {
                 // 实例化对象
                 result = parameterType.getDeclaredConstructor().newInstance();
-                // 获取对象内字段
-                for (Field field : parameterType.getDeclaredFields()) {
-                    String fieldName = field.getName();
-                    try {
-                        if (Modifier.isFinal(field.getModifiers())) {
-                            continue;
-                        }
-                        // 获取对应字段参数值
-                        String encryptField = webRequest.getParameter(fieldName);
-                        String objectParameterValue = encryptField;
-                        boolean fieldAnnotationPresent = field.isAnnotationPresent(DecryptParam.class);
-                        boolean isDecryptField = fieldAnnotationPresent || SecureApiThreadLocal.getIsDecryptApi();
-                        if (isDecryptField) {
-                            // 解密字段参数值
-                            objectParameterValue = CipherModeHandler.handleDecryptMode(objectParameterValue, secureApiPropertiesConfig);
-                            showLog(parameterType.getSimpleName() + "." + fieldName, encryptField, objectParameterValue);
-                        }
-                        // 获取字段类型
-                        Class<?> fieldType = field.getType();
-                        // 获取字段包装类型
-                        Class<?> fieldPackageType = ClassUtils.resolvePrimitiveIfNecessary(fieldType);
-                        // 设置对象字段值
-                        Object o = getObjectByType(fieldPackageType, objectParameterValue);
-                        if (StringUtils.hasText(objectParameterValue) && o == null) {
-                            // 转换String字符串为实体类字段类型
-                            Constructor<?> constructor = fieldPackageType.getConstructor(objectParameterValue.getClass());
-                            o = constructor.newInstance(objectParameterValue);
-                        }
-                        if (o != null) {
-                            field.setAccessible(true);
-                            field.set(result, o);
-                        }
-                    } catch (Exception e) {
-                        // 出现异常跳过此字段值的设置
-                        log.error("实体类字段：{} 设置出现异常，跳过此字段值的设置", parameterType.getSimpleName() + "." + fieldName, e);
-                    }
-                }
+                // 递归获取对象内字段
+                getAllFields(webRequest, parameterType, result);
             } catch (Exception e) {
                 // 参数解密失败或者参数不是实体类而是为null不解密返回defaultValue
                 if (hasDecryptParam && StringUtils.hasText(decryptParam.defaultValue())) {
@@ -201,6 +167,55 @@ public class SecureApiArgumentResolver implements HandlerMethodArgumentResolver 
             }
         }
         return o;
+    }
+
+    /**
+     * 递归获取所有父类字段
+     * @param webRequest 请求信息
+     * @param parameterType 实体类参数类型
+     * @param result 实体类实例
+     */
+    private void getAllFields(WebRequest webRequest, Class<?> parameterType, Object result) {
+        Class<?> clazz = parameterType;
+        while (clazz != null) {
+            for (Field field : clazz.getDeclaredFields()) {
+                field.setAccessible(true);
+                String fieldName = field.getName();
+                try {
+                    if (Modifier.isFinal(field.getModifiers())) {
+                        continue;
+                    }
+                    // 获取对应字段参数值
+                    String encryptField = webRequest.getParameter(fieldName);
+                    String objectParameterValue = encryptField;
+                    boolean fieldAnnotationPresent = field.isAnnotationPresent(DecryptParam.class);
+                    boolean isDecryptField = fieldAnnotationPresent || SecureApiThreadLocal.getIsDecryptApi();
+                    if (isDecryptField) {
+                        // 解密字段参数值
+                        objectParameterValue = CipherModeHandler.handleDecryptMode(objectParameterValue, secureApiPropertiesConfig);
+                        showLog(parameterType.getSimpleName() + "." + fieldName, encryptField, objectParameterValue);
+                    }
+                    // 获取字段类型
+                    Class<?> fieldType = field.getType();
+                    // 获取字段包装类型
+                    Class<?> fieldPackageType = ClassUtils.resolvePrimitiveIfNecessary(fieldType);
+                    // 设置对象字段值
+                    Object o = getObjectByType(fieldPackageType, objectParameterValue);
+                    if (StringUtils.hasText(objectParameterValue) && o == null) {
+                        // 转换String字符串为实体类字段类型
+                        Constructor<?> constructor = fieldPackageType.getConstructor(objectParameterValue.getClass());
+                        o = constructor.newInstance(objectParameterValue);
+                    }
+                    if (o != null) {
+                        field.set(result, o);
+                    }
+                } catch (Exception e) {
+                    // 出现异常跳过此字段值的设置
+                    log.error("实体类字段：{} 设置出现异常，跳过此字段值的设置", parameterType.getSimpleName() + "." + fieldName, e);
+                }
+            }
+            clazz = clazz.getSuperclass();
+        }
     }
 
     private void showLog(String paramName, String encryptString, String decryptString) {

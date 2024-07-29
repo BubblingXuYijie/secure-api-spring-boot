@@ -1,4 +1,4 @@
-package icu.xuyijie.controller;
+package icu.xuyijie.entity;
 
 import icu.xuyijie.secureapi.annotation.DecryptParam;
 
@@ -9,9 +9,9 @@ import java.util.List;
  * @date 2024/6/25 11:03
  * @description
  */
-public class User {
+public class User extends People {
     private int id;
-    private String name;
+
     @DecryptParam
     private List<String> role;
 
@@ -21,14 +21,6 @@ public class User {
 
     public void setId(int id) {
         this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public List<String> getRole() {
@@ -43,7 +35,6 @@ public class User {
     public String toString() {
         return "User{" +
                 "id=" + id +
-                ", name='" + name + '\'' +
                 ", role=" + role +
                 '}';
     }
