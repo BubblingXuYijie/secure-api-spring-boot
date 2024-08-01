@@ -7,11 +7,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
-import javax.crypto.Cipher;
-import javax.crypto.KeyGenerator;
-import javax.crypto.SecretKey;
+import javax.crypto.*;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.security.spec.PKCS8EncodedKeySpec;
@@ -242,18 +242,52 @@ public class CipherUtils {
         try {
             // 创建密码器
             Cipher cipher = Cipher.getInstance(cipherAlgorithmEnum.getValue());
-            byte[] byteContent = content.getBytes(StandardCharsets.UTF_8);
             // 初始化RSA加密模式的密码器，new X509EncodedKeySpec从byte[]恢复KeySpec对象
             PublicKey pubKey = KeyFactory.getInstance(keyGenAlgorithmEnum.getValue()).generatePublic(new X509EncodedKeySpec(base642Byte(key)));
             cipher.init(Cipher.ENCRYPT_MODE, pubKey);
             // 加密
-            byte[] result = cipher.doFinal(byteContent);
+            byte[] result = rsaGroupEncrypt(content, cipher);
             //通过Base64转码返回
             return byte2Base64(result);
         } catch (Exception e) {
             log.error("RSA加密失败", e);
             throw new SecureApiException(ErrorEnum.RSA_ENCRYPT_ERROR);
         }
+    }
+
+    /**
+     * 判断是否需要分组操作
+     * @param content 明文
+     * @param cipher 密钥器
+     * @return 密文字节数组
+     */
+    private byte[] rsaGroupEncrypt(String content, Cipher cipher) throws IllegalBlockSizeException, BadPaddingException, IOException {
+        byte[] byteContent = content.getBytes(StandardCharsets.UTF_8);
+        int inputLength = byteContent.length;
+        int maxLength = 190;
+        if (inputLength <= maxLength) {
+            return cipher.doFinal(byteContent);
+        }
+
+        // 开始分段加密
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        int offset = 0;
+        byte[] cache;
+        int i = 0;
+        while (inputLength - offset > 0) {
+            if (inputLength - offset > maxLength) {
+                cache = cipher.doFinal(byteContent, offset, maxLength);
+            } else {
+                cache = cipher.doFinal(byteContent, offset, inputLength - offset);
+            }
+            out.write(cache, 0, cache.length);
+            i++;
+            offset = i * maxLength;
+        }
+        byte[] encryptedBytes = out.toByteArray();
+        out.close();
+
+        return encryptedBytes;
     }
 
     /**
@@ -276,11 +310,11 @@ public class CipherUtils {
             } else {
                 cipher.init(Cipher.ENCRYPT_MODE, getSecretKeySpec(key));
             }
-            //处理补全字符数组
+            // 处理补全字符数组
             //byteContent = handlePadding(byteContent)
             // 加密
             byte[] result = cipher.doFinal(byteContent);
-            //通过Base64转码返回
+            // 通过Base64转码返回
             return byte2Base64(result);
         } catch (Exception e) {
             log.error("加密失败", e);
@@ -300,14 +334,14 @@ public class CipherUtils {
             paddingString = "";
             return byteContent;
         }
-        //要补全的长度
+        // 要补全的长度
         int paddingSize = cipherAlgorithmEnum.getFillLength() - byteContent.length % cipherAlgorithmEnum.getFillLength();
-        //把原数组copy一份
+        // 把原数组copy一份
         byte[] finalByteContent = Arrays.copyOf(byteContent, byteContent.length + paddingSize);
-        //生成要补全长度的英文字符串
+        // 生成要补全长度的英文字符串
         paddingString = getRandomString(paddingSize, null);
         byte[] bytes = paddingString.getBytes(StandardCharsets.UTF_8);
-        //合并数组
+        // 合并数组
         System.arraycopy(bytes, 0, finalByteContent, byteContent.length, bytes.length);
         log.info("明文byte长度不符合要求，且加密模式为NO_PADDING，使用随机字符串自动补全，随机字符串：{}", paddingString);
         return finalByteContent;
@@ -340,18 +374,18 @@ public class CipherUtils {
      */
     public String decrypt(String content, String key, String iv) {
         try {
-            //实例化
+            // 实例化
             Cipher cipher = Cipher.getInstance(cipherAlgorithmEnum.getValue());
-            //使用密钥初始化，设置为解密模式，ECB模式不设置iv
+            // 使用密钥初始化，设置为解密模式，ECB模式不设置iv
             if (StringUtils.hasText(iv)) {
                 IvParameterSpec ivParameterSpec = new IvParameterSpec(base642Byte(iv));
                 cipher.init(Cipher.DECRYPT_MODE, getSecretKeySpec(key), ivParameterSpec);
             } else {
                 cipher.init(Cipher.DECRYPT_MODE, getSecretKeySpec(key));
             }
-            //执行操作
+            // 执行操作
             byte[] result = cipher.doFinal(base642Byte(content));
-            //去除最后匹配到的补全字符
+            // 去除最后匹配到的补全字符
             return new String(result, StandardCharsets.UTF_8).replaceAll(paddingString + "$", "");
         } catch (Exception e) {
             log.error("解密失败，请检查加密key和解密key是否相同，密文：{}", content, e);
@@ -368,19 +402,52 @@ public class CipherUtils {
      */
     private String decryptRsa(String content, String key) {
         try {
-            //实例化
+            // 实例化密钥器
             Cipher cipher = Cipher.getInstance(cipherAlgorithmEnum.getValue());
-            //使用密钥初始化，设置为解密模式
+            // 使用密钥初始化，设置为解密模式
             PrivateKey priKey = KeyFactory.getInstance(keyGenAlgorithmEnum.getValue()).generatePrivate(new PKCS8EncodedKeySpec(base642Byte(key)));
             cipher.init(Cipher.DECRYPT_MODE, priKey);
-            //执行操作
-            byte[] result = cipher.doFinal(base642Byte(content));
-            //去除最后匹配到的补全字符
+            // 执行操作
+            byte[] result = rsaGroupDecrypt(content, cipher);
             return new String(result, StandardCharsets.UTF_8);
         } catch (Exception e) {
             log.error("RSA解密失败，请检查公钥和私钥匹配情况，密文：{}", content, e);
             throw new SecureApiException(ErrorEnum.RSA_DECRYPT_ERROR);
         }
+    }
+
+    /**
+     * 判断是否需要分组操作
+     * @param content 密文
+     * @param cipher 密钥器
+     * @return 明文字节数组
+     */
+    private byte[] rsaGroupDecrypt(String content, Cipher cipher) throws IllegalBlockSizeException, BadPaddingException, IOException {
+        byte[] byteContent = base642Byte(content);
+        int inputLength = byteContent.length;
+        int maxLength = keyGenAlgorithmEnum.getLength() / 8;
+        if (inputLength <= maxLength) {
+            return cipher.doFinal(byteContent);
+        }
+
+        // 开始分段解密
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        int offset = 0;
+        byte[] cache;
+        int i = 0;
+        while (inputLength - offset > 0) {
+            if (inputLength - offset > maxLength) {
+                cache = cipher.doFinal(byteContent, offset, maxLength);
+            } else {
+                cache = cipher.doFinal(byteContent, offset, inputLength - offset);
+            }
+            out.write(cache);
+            i++;
+            offset = i * maxLength;
+        }
+        byte[] byteArray = out.toByteArray();
+        out.close();
+        return byteArray;
     }
 
     /**
