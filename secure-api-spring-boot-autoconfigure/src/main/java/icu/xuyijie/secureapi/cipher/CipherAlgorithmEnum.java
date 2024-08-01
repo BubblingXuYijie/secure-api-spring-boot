@@ -310,11 +310,17 @@ public enum CipherAlgorithmEnum {
 
         @Override
         public String encrypt(String content, SecureApiPropertiesConfig secureApiPropertiesConfig) {
+//            if (content.getBytes(StandardCharsets.UTF_8).length > 190) {
+//                return CipherAlgorithmEnum.rsaGroupEncrypt(190, content, this, secureApiPropertiesConfig);
+//            }
             return CipherAlgorithmEnum.rsaEncrypt(content, this, secureApiPropertiesConfig);
         }
 
         @Override
         public String decrypt(String content, SecureApiPropertiesConfig secureApiPropertiesConfig) {
+//            if (content.getBytes(StandardCharsets.UTF_8).length > 344) {
+//                return CipherAlgorithmEnum.rsaGroupDecrypt(256, content, this, secureApiPropertiesConfig);
+//            }
             return CipherAlgorithmEnum.rsaDecrypt(content, this, secureApiPropertiesConfig);
         }
     },
@@ -380,18 +386,13 @@ public enum CipherAlgorithmEnum {
         if (!StringUtils.hasText(secureApiPropertiesConfig.getKey())) {
             CipherUtils cipherUtils = new CipherUtils(cipherAlgorithmEnum, secureApiPropertiesConfig.isUrlSafe());
             String randomSecreteKey = cipherUtils.getRandomSecreteKey();
-            log.info("\n您未配置接口加解密key，生成随机key，请妥善保存：{}", randomSecreteKey);
+            log.info("\n您未配置接口加解密key，生成随机key，请妥善保存\nkey：{}", randomSecreteKey);
             secureApiPropertiesConfig.setKey(randomSecreteKey);
         }
     }
 
     private static void generateCbcKeyIfAbsent(CipherAlgorithmEnum cipherAlgorithmEnum, SecureApiPropertiesConfig secureApiPropertiesConfig) {
-        if (!StringUtils.hasText(secureApiPropertiesConfig.getKey())) {
-            CipherUtils cipherUtils = new CipherUtils(cipherAlgorithmEnum, secureApiPropertiesConfig.isUrlSafe());
-            String randomSecreteKey = cipherUtils.getRandomSecreteKey();
-            log.info("\n您未配置接口加解密key，生成随机key，请妥善保存\nkey：{}", randomSecreteKey);
-            secureApiPropertiesConfig.setKey(randomSecreteKey);
-        }
+        generateEcbKeyIfAbsent(cipherAlgorithmEnum, secureApiPropertiesConfig);
         if (!StringUtils.hasText(secureApiPropertiesConfig.getIv())) {
             CipherUtils cipherUtils = new CipherUtils(cipherAlgorithmEnum, secureApiPropertiesConfig.isUrlSafe());
             String randomIv = cipherUtils.getRandomIv();
@@ -429,4 +430,38 @@ public enum CipherAlgorithmEnum {
         CipherUtils cipherUtils = new CipherUtils(cipherAlgorithmEnum, secureApiPropertiesConfig.isUrlSafe());
         return cipherUtils.decrypt(content, secureApiPropertiesConfig.getPrivateKey());
     }
+
+//    private static String rsaGroupEncrypt(int splitSize, String content, CipherAlgorithmEnum cipherAlgorithmEnum, SecureApiPropertiesConfig secureApiPropertiesConfig) {
+//        byte[] bytes = content.getBytes(StandardCharsets.UTF_8);
+//        int length = bytes.length;
+//        int split = length / splitSize;
+//        if (length % splitSize != 0) {
+//            split ++;
+//        }
+//        StringBuilder stringBuilder = new StringBuilder();
+//        for (int i = 1; i <= split; i ++) {
+//            byte[] splitBytes = new byte[splitSize];
+//            System.arraycopy(bytes, Math.min(i * splitSize, length), splitBytes, 0, length);
+//            String encrypt = cipherAlgorithmEnum.encrypt(new String(splitBytes, StandardCharsets.UTF_8), secureApiPropertiesConfig);
+//            stringBuilder.append(encrypt);
+//        }
+//        return stringBuilder.toString();
+//    }
+//
+//    private static String rsaGroupDecrypt(int splitSize, String content, CipherAlgorithmEnum cipherAlgorithmEnum, SecureApiPropertiesConfig secureApiPropertiesConfig) {
+//        byte[] bytes = content.getBytes(StandardCharsets.UTF_8);
+//        int length = bytes.length;
+//        int split = length / splitSize;
+//        if (length % splitSize != 0) {
+//            split ++;
+//        }
+//        StringBuilder stringBuilder = new StringBuilder();
+//        for (int i = 1; i <= split; i ++) {
+//            byte[] splitBytes = new byte[splitSize];
+//            System.arraycopy(bytes, Math.min(i * splitSize, length), splitBytes, 0, length);
+//            String encrypt = cipherAlgorithmEnum.decrypt(new String(splitBytes, StandardCharsets.UTF_8), secureApiPropertiesConfig);
+//            stringBuilder.append(encrypt);
+//        }
+//        return stringBuilder.toString();
+//    }
 }
