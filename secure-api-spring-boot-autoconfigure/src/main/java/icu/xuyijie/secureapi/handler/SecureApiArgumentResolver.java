@@ -81,7 +81,6 @@ public class SecureApiArgumentResolver implements HandlerMethodArgumentResolver 
         boolean isDecryptParam = SecureApiThreadLocal.getIsDecryptApi() || hasDecryptParam;
         if (isDecryptParam) {
             parameterValue = CipherModeHandler.handleDecryptMode(parameterValue, secureApiPropertiesConfig);
-            showLog(parameterName, encryptParam, parameterValue);
         }
         // 参数不为空并且解密成功，解密后要自行处理各种类型
         Object result = null;
@@ -91,6 +90,7 @@ public class SecureApiArgumentResolver implements HandlerMethodArgumentResolver 
             if (result == null) {
                 result = parameterValue;
             }
+            showLog(parameterName, encryptParam, parameterValue);
         } else {
             // 自定义的实体类类型或者传入值为null的情况
             try {
