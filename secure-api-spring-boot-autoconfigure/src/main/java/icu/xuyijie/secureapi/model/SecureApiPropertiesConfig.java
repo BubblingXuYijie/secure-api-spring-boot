@@ -68,6 +68,14 @@ public class SecureApiPropertiesConfig {
      */
     private SecureApiProperties.UrlPattern decryptUrl = new SecureApiProperties.UrlPattern();
 
+    /**
+     * json日期格式化
+     */
+    private String dateFormat = "yyyy-MM-dd HH:mm:ss";
+    private String localDateTimeFormat = "yyyy-MM-dd HH:mm:ss";
+    private String localDateFormat = "yyyy-MM-dd";
+    private String localTimeFormat = "HH:mm:ss";
+
     public boolean isEnabled() {
         return enabled;
     }
@@ -164,6 +172,38 @@ public class SecureApiPropertiesConfig {
         this.decryptUrl = decryptUrl;
     }
 
+    public String getDateFormat() {
+        return dateFormat;
+    }
+
+    public void setDateFormat(String dateFormat) {
+        this.dateFormat = dateFormat;
+    }
+
+    public String getLocalDateTimeFormat() {
+        return localDateTimeFormat;
+    }
+
+    public void setLocalDateTimeFormat(String localDateTimeFormat) {
+        this.localDateTimeFormat = localDateTimeFormat;
+    }
+
+    public String getLocalDateFormat() {
+        return localDateFormat;
+    }
+
+    public void setLocalDateFormat(String localDateFormat) {
+        this.localDateFormat = localDateFormat;
+    }
+
+    public String getLocalTimeFormat() {
+        return localTimeFormat;
+    }
+
+    public void setLocalTimeFormat(String localTimeFormat) {
+        this.localTimeFormat = localTimeFormat;
+    }
+
     @Override
     public String toString() {
         return "SecureApiPropertiesConfig{" +
@@ -179,6 +219,10 @@ public class SecureApiPropertiesConfig {
                 ", privateKey='" + privateKey + '\'' +
                 ", encryptUrl=" + encryptUrl +
                 ", decryptUrl=" + decryptUrl +
+                ", dateFormat='" + dateFormat + '\'' +
+                ", localDateTimeFormat='" + localDateTimeFormat + '\'' +
+                ", localDateFormat='" + localDateFormat + '\'' +
+                ", localTimeFormat='" + localTimeFormat + '\'' +
                 '}';
     }
 }
