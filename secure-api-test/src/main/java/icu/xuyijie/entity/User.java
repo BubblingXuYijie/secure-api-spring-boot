@@ -2,6 +2,8 @@ package icu.xuyijie.entity;
 
 import icu.xuyijie.secureapi.annotation.DecryptParam;
 
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -14,6 +16,12 @@ public class User extends People {
 
     @DecryptParam
     private List<String> role;
+
+    @DecryptParam
+    private LocalDateTime createTime;
+
+    @DecryptParam
+    private Date editTime;
 
     public int getId() {
         return id;
@@ -31,11 +39,29 @@ public class User extends People {
         this.role = role;
     }
 
+    public LocalDateTime getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(LocalDateTime createTime) {
+        this.createTime = createTime;
+    }
+
+    public Date getEditTime() {
+        return editTime;
+    }
+
+    public void setEditTime(Date editTime) {
+        this.editTime = editTime;
+    }
+
     @Override
     public String toString() {
         return "User{" +
                 "id=" + id +
                 ", role=" + role +
+                ", createTime=" + createTime +
+                ", editTime=" + editTime +
                 '}';
     }
 }

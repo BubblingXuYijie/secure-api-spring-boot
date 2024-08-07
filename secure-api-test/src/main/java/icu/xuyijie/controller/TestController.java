@@ -7,6 +7,8 @@ import icu.xuyijie.secureapi.annotation.DecryptParam;
 import icu.xuyijie.secureapi.annotation.EncryptApi;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.Map;
 import java.util.Set;
 
@@ -19,13 +21,15 @@ import java.util.Set;
 @RequestMapping("secureApiTest")
 public class TestController {
     @RequestMapping("/testForm")
-    public int testForm(User user, @DecryptParam Integer age, @DecryptParam Map<String, String> map, @DecryptParam(required = false) Set<String> set) {
+    public User testForm(User user, @DecryptParam Integer age, @DecryptParam Map<String, String> map, @DecryptParam(required = false) Set<String> set) {
         System.out.println(user);
         System.out.println(user.getName());
         System.out.println(age);
         System.out.println(map);
         System.out.println(set);
-        return age;
+        user.setCreateTime(LocalDateTime.now());
+        user.setEditTime(new Date());
+        return user;
     }
 
     @RequestMapping("/testParam")
@@ -45,8 +49,12 @@ public class TestController {
     @RequestMapping("/testRequest")
     @DecryptApi
     @EncryptApi
-    public ResultEntity<String> testRequest(@RequestBody ResultEntity<String> resultEntity) {
-        System.out.println(resultEntity);
+    public ResultEntity<String> testRequest(@RequestBody User user) {
+        System.out.println(user);
+        Date editTime = user.getEditTime();
+        LocalDateTime createTime = user.getCreateTime();
+        System.out.println(editTime);
+        System.out.println(createTime);
         return ResultEntity.success("嘿嘿嘿");
     }
 }

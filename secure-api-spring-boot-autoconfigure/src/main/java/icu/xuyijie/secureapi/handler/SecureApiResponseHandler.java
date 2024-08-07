@@ -18,6 +18,9 @@ import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
+import java.time.temporal.Temporal;
+import java.util.Date;
+
 /**
  * @author 徐一杰
  * @date 2024/6/18 18:20
@@ -29,9 +32,11 @@ public class SecureApiResponseHandler implements ResponseBodyAdvice<Object> {
     private final Logger log = LoggerFactory.getLogger(SecureApiResponseHandler.class);
 
     private final SecureApiPropertiesConfig secureApiPropertiesConfig;
+    private final ObjectMapper secureApiObjectMapper;
 
-    public SecureApiResponseHandler(SecureApiPropertiesConfig secureApiPropertiesConfig) {
+    public SecureApiResponseHandler(SecureApiPropertiesConfig secureApiPropertiesConfig, ObjectMapper secureApiObjectMapper) {
         this.secureApiPropertiesConfig = secureApiPropertiesConfig;
+        this.secureApiObjectMapper = secureApiObjectMapper;
     }
 
     @Override
@@ -54,7 +59,13 @@ public class SecureApiResponseHandler implements ResponseBodyAdvice<Object> {
             if (body == null) {
                 return null;
             }
-            String bodyJson = new ObjectMapper().writeValueAsString(body);
+            boolean checkIsNoNeedObjectMapper = checkIsNoNeedObjectMapper(body);
+            String bodyJson = secureApiObjectMapper.writeValueAsString(body);
+            // 有些类型转为json后会使用双引号包裹，给它去掉
+            if (checkIsNoNeedObjectMapper && bodyJson != null) {
+                bodyJson = bodyJson.replaceFirst("\"", "");
+                bodyJson = bodyJson.substring(0, bodyJson.lastIndexOf("\""));
+            }
             String encrypt = CipherModeHandler.handleEncryptMode(bodyJson, secureApiPropertiesConfig);
             if (secureApiPropertiesConfig.isShowLog()) {
                 if (SecureApiProperties.Mode.COMMON == secureApiPropertiesConfig.getMode()) {
@@ -69,4 +80,14 @@ public class SecureApiResponseHandler implements ResponseBodyAdvice<Object> {
             return body;
         }
     }
+
+    /**
+     * 检查是否 不 需要使用ObjectMapper序列化
+     * @param body 值
+     * @return 是否 不 需要使用ObjectMapper序列化
+     */
+    private boolean checkIsNoNeedObjectMapper(Object body) {
+        return body instanceof String || body instanceof Date || body instanceof Temporal;
+    }
+
 }
