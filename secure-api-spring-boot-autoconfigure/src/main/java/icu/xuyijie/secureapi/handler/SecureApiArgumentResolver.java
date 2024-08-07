@@ -25,6 +25,9 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.time.*;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.Temporal;
 import java.util.*;
 
 /**
@@ -35,10 +38,49 @@ import java.util.*;
 @Component
 public class SecureApiArgumentResolver implements HandlerMethodArgumentResolver {
     private final Logger log = LoggerFactory.getLogger(SecureApiArgumentResolver.class);
+
     private final SecureApiPropertiesConfig secureApiPropertiesConfig;
+    private final List<DateTimeFormatter> dateFormatterList;
 
     public SecureApiArgumentResolver(SecureApiPropertiesConfig secureApiPropertiesConfig) {
         this.secureApiPropertiesConfig = secureApiPropertiesConfig;
+        dateFormatterList = List.of(
+                DateTimeFormatter.ofPattern(this.secureApiPropertiesConfig.getDateFormat()),
+                DateTimeFormatter.ofPattern(this.secureApiPropertiesConfig.getLocalDateTimeFormat()),
+                DateTimeFormatter.ofPattern(this.secureApiPropertiesConfig.getLocalDateFormat()),
+                DateTimeFormatter.ofPattern(this.secureApiPropertiesConfig.getLocalTimeFormat()),
+                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"),
+                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS"),
+                DateTimeFormatter.ofPattern("yyyy-MM-dd"),
+                DateTimeFormatter.ofPattern("HH:mm:ss"),
+                DateTimeFormatter.ofPattern("HH:mm:ss.SSS"),
+                DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZ"),
+                DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssX"),
+                DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssXXX"),
+                DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ"),
+                DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSX"),
+                DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX"),
+                DateTimeFormatter.ofPattern("EEE MMM dd HH:mm:ss zzz yyyy"),
+                DateTimeFormatter.ofPattern("EEE MMM dd HH:mm:ss zzz yyyy", Locale.US),
+                // 2024-08-06T09:32:02
+                DateTimeFormatter.ISO_DATE_TIME,
+                DateTimeFormatter.ISO_DATE,
+                DateTimeFormatter.ISO_TIME,
+                // 2024-08-06T09:32:02+00:00
+                DateTimeFormatter.ISO_OFFSET_DATE_TIME,
+                DateTimeFormatter.ISO_OFFSET_DATE,
+                DateTimeFormatter.ISO_OFFSET_TIME,
+                DateTimeFormatter.ISO_ORDINAL_DATE,
+                // 2024-08-06T09:32:02Z[UTC]
+                DateTimeFormatter.ISO_ZONED_DATE_TIME,
+                DateTimeFormatter.BASIC_ISO_DATE,
+                DateTimeFormatter.ISO_WEEK_DATE,
+                DateTimeFormatter.ISO_LOCAL_DATE,
+                DateTimeFormatter.ISO_LOCAL_TIME,
+                DateTimeFormatter.ISO_LOCAL_DATE_TIME,
+                DateTimeFormatter.RFC_1123_DATE_TIME,
+                DateTimeFormatter.ISO_INSTANT
+        );
     }
 
     @Override
@@ -201,21 +243,82 @@ public class SecureApiArgumentResolver implements HandlerMethodArgumentResolver 
                     Class<?> fieldPackageType = ClassUtils.resolvePrimitiveIfNecessary(fieldType);
                     // 设置对象字段值
                     Object o = getObjectByType(fieldPackageType, objectParameterValue);
+                    // 转换String字符串为实体类字段类型
                     if (StringUtils.hasText(objectParameterValue) && o == null) {
-                        // 转换String字符串为实体类字段类型
-                        Constructor<?> constructor = fieldPackageType.getConstructor(objectParameterValue.getClass());
-                        o = constructor.newInstance(objectParameterValue);
+                        // 处理日期类型
+                        if (fieldPackageType == Date.class || Temporal.class.isAssignableFrom(fieldPackageType)) {
+                            o = convertStringAsDate(objectParameterValue, fieldPackageType);
+                        } else {
+                            Constructor<?> constructor = fieldPackageType.getConstructor(objectParameterValue.getClass());
+                            o = constructor.newInstance(objectParameterValue);
+                        }
                     }
                     if (o != null) {
                         field.set(result, o);
                     }
                 } catch (Exception e) {
-                    // 出现异常跳过此字段值的设置
                     log.error("实体类字段：{} 设置出现异常，跳过此字段值的设置", parameterType.getSimpleName() + "." + fieldName, e);
                 }
             }
             clazz = clazz.getSuperclass();
         }
+    }
+
+    /**
+     * 把string转换为日期
+     * @param string 日期字符串
+     * @param parameterType 目标类型
+     * @return 日期对象
+     */
+    private Object convertStringAsDate(String string, Class<?> parameterType) {
+        if (parameterType == Date.class) {
+            for (DateTimeFormatter formatter : dateFormatterList) {
+                try {
+                    // 尝试解析 LocalDateTime 类型
+                    LocalDateTime localDateTime = LocalDateTime.parse(string, formatter);
+                    return Date.from(localDateTime.atZone(TimeZone.getDefault().toZoneId()).toInstant());
+                } catch (Exception ignored) {
+                }
+            }
+        } else if (parameterType == LocalDateTime.class) {
+            for (DateTimeFormatter formatter : dateFormatterList) {
+                try {
+                    // 尝试解析 LocalDateTime 类型
+                    return LocalDateTime.parse(string, formatter);
+                } catch (Exception ignored) {
+                }
+            }
+        } else if (parameterType == LocalDate.class) {
+            for (DateTimeFormatter formatter : dateFormatterList) {
+                try {
+                    return LocalDate.parse(string, formatter);
+                } catch (Exception ignored) {
+                }
+            }
+        } else if (parameterType == LocalTime.class) {
+            for (DateTimeFormatter formatter : dateFormatterList) {
+                try {
+                    return LocalTime.parse(string, formatter);
+                } catch (Exception ignored) {
+                }
+            }
+        } else if (parameterType == OffsetDateTime.class) {
+            for (DateTimeFormatter formatter : dateFormatterList) {
+                try {
+                    return OffsetDateTime.parse(string, formatter);
+                } catch (Exception ignored) {
+                }
+            }
+        } else if (parameterType == ZonedDateTime.class) {
+            for (DateTimeFormatter formatter : dateFormatterList) {
+                try {
+                    return ZonedDateTime.parse(string, formatter);
+                } catch (Exception ignored) {
+                }
+            }
+        }
+        log.error("没有匹配的日期转换格式，原值：{}，目标类型：{}", string, parameterType);
+        return null;
     }
 
     private void showLog(String paramName, String encryptString, String decryptString) {

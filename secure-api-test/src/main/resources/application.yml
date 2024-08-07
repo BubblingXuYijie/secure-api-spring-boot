@@ -15,3 +15,7 @@ secure-api:
   decrypt-url:
     include-urls: /**
     exclude-urls:
+  date-format: yyyy-MM-dd HH:mm:ss
+  local-date-time-format: yyyy-MM-dd HH:mm:ss
+  local-date-format: yyyy-MM-dd
+  local-time-format: HH:mm:ss

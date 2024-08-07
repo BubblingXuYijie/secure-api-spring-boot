@@ -1,7 +1,9 @@
 package icu.xuyijie.secureapi.autoconfigure;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import icu.xuyijie.secureapi.cipher.CipherAlgorithmEnum;
 import icu.xuyijie.secureapi.cipher.CipherUtils;
+import icu.xuyijie.secureapi.config.ObjectMapperConfig;
 import icu.xuyijie.secureapi.exception.ErrorEnum;
 import icu.xuyijie.secureapi.exception.SecureApiException;
 import icu.xuyijie.secureapi.model.SecureApiProperties;
@@ -45,6 +47,10 @@ public class SecureApiAutoConfigure {
         secureApiPropertiesConfig.setPrivateKey(secureApiProperties.getPrivateKey());
         secureApiPropertiesConfig.setEncryptUrl(secureApiProperties.getEncryptUrl());
         secureApiPropertiesConfig.setDecryptUrl(secureApiProperties.getDecryptUrl());
+        secureApiPropertiesConfig.setDateFormat(secureApiProperties.getDateFormat());
+        secureApiPropertiesConfig.setLocalDateTimeFormat(secureApiProperties.getLocalDateTimeFormat());
+        secureApiPropertiesConfig.setLocalDateFormat(secureApiProperties.getLocalDateFormat());
+        secureApiPropertiesConfig.setLocalTimeFormat(secureApiProperties.getLocalTimeFormat());
         return secureApiPropertiesConfig;
     }
 
@@ -71,5 +77,11 @@ public class SecureApiAutoConfigure {
             }
         }
         return cipherUtils;
+    }
+
+    @Bean
+    @ConditionalOnBean({SecureApiPropertiesConfig.class})
+    public ObjectMapper secureApiObjectMapper(SecureApiPropertiesConfig secureApiPropertiesConfig) {
+        return new ObjectMapperConfig(secureApiPropertiesConfig).myObjectMapper();
     }
 }

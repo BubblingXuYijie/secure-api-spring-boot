@@ -108,6 +108,34 @@
       "type": "java.util.List",
       "description": "不包含url",
       "sourceType": "icu.xuyijie.secureapi.model.SecureApiProperties"
+    },
+    {
+      "name": "secure-api.date-format",
+      "type": "java.lang.String",
+      "description": "json Date日期格式化",
+      "sourceType": "icu.xuyijie.secureapi.model.SecureApiProperties",
+      "defaultValue": "yyyy-MM-dd HH:mm:ss"
+    },
+    {
+      "name": "secure-api.local-date-time-format",
+      "type": "java.lang.String",
+      "description": "json LocalDateTime日期格式化",
+      "sourceType": "icu.xuyijie.secureapi.model.SecureApiProperties",
+      "defaultValue": "yyyy-MM-dd HH:mm:ss"
+    },
+    {
+      "name": "secure-api.local-date-format",
+      "type": "java.lang.String",
+      "description": "json LocalDate日期格式化",
+      "sourceType": "icu.xuyijie.secureapi.model.SecureApiProperties",
+      "defaultValue": "yyyy-MM-dd"
+    },
+    {
+      "name": "secure-api.local-time-format",
+      "type": "java.lang.String",
+      "description": "json LocalTime日期格式化",
+      "sourceType": "icu.xuyijie.secureapi.model.SecureApiProperties",
+      "defaultValue": "HH:mm:ss"
     }
   ]
 }
