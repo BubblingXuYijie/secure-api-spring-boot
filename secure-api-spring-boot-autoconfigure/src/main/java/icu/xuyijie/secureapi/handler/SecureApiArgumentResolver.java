@@ -198,11 +198,16 @@ public class SecureApiArgumentResolver implements HandlerMethodArgumentResolver 
         // 判断是否是合法的list字符串
         if (s.length() > 1 && s.charAt(0) == '[' && s.charAt(s.length() - 1) == ']') {
             // 去除字符串开头和结尾的[]
-            String replace = s.substring(0, s.length() - 1).replaceFirst("\\[", "");
+            s = s.substring(0, s.length() - 1).replaceFirst("\\[", "");
             // 如果不是空list
-            if (StringUtils.hasText(replace)) {
-                // 如果字符串是list.toString转换出来的，那么逗号后面会有一个空格，把它去掉
-                return replace.replace(", ", ",").split(",");
+            if (StringUtils.hasText(s)) {
+                // 如果字符串是list.toString转换出来的，那么逗号后面会有一个空格，还会用引号包裹每个元素，都要把它们去掉
+                if (s.charAt(0) == '"' && s.charAt(s.length() - 1) == '"' && (s.contains("\", \"") || s.contains("\",\""))) {
+                    s = s.substring(0, s.length() - 1).replaceFirst("\"", "").replace("\", \"", ",").replace("\",\"", ",");
+                } else {
+                    s = s.replace(", ", ",");
+                }
+                return s.split(",");
             }
         }
         return new String[0];
