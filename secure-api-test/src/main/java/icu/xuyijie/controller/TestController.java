@@ -8,9 +8,7 @@ import icu.xuyijie.secureapi.annotation.EncryptApi;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author 徐一杰
@@ -21,12 +19,13 @@ import java.util.Set;
 @RequestMapping("secureApiTest")
 public class TestController {
     @RequestMapping("/testForm")
-    public User testForm(User user, @DecryptParam Integer age, @DecryptParam Map<String, String> map, @DecryptParam(required = false) Set<String> set) {
+    public User testForm(User user, @DecryptParam Integer age, @DecryptParam Map<String, String> map, @DecryptParam(required = false) Set<String> set, @DecryptParam(required = false) List<String> localDateTimeStringList) {
         System.out.println(user);
         System.out.println(user.getName());
         System.out.println(age);
         System.out.println(map);
         System.out.println(set);
+        System.out.println(localDateTimeStringList);
         user.setCreateTime(LocalDateTime.now());
         user.setEditTime(new Date());
         return user;
