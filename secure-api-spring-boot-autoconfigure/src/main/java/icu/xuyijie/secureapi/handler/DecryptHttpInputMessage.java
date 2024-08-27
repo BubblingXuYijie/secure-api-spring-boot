@@ -37,9 +37,11 @@ public class DecryptHttpInputMessage implements HttpInputMessage {
             body = null;
             return;
         }
+
         // 去除json值两边的双引号
-        content = content.replaceFirst("\"", "");
-        content = content.substring(0, content.lastIndexOf("\""));
+        if (content.length() > 1 && content.charAt(0) == '"' && content.charAt(content.length() - 1) == '"') {
+            content = content.substring(0, content.length() - 1).replaceFirst("\"", "");
+        }
 
         // 解密
         String decryptBody = CipherModeHandler.handleDecryptMode(content, secureApiPropertiesConfig);
