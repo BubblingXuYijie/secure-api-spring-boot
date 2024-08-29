@@ -56,4 +56,18 @@ public class TestController {
         System.out.println(createTime);
         return ResultEntity.success("嘿嘿嘿");
     }
+
+    @RequestMapping("/testGroup")
+    @DecryptApi
+    @EncryptApi
+    public ResultEntity<List<User>> testGroup(@RequestBody ResultEntity<List<User>> resultEntity) {
+        System.out.println(resultEntity.getData().get(0));
+        List<User> userList2 = new ArrayList<>();
+        for (int i = 0; i < 100; i++) {
+            User user = new User();
+            user.setId(i);
+            userList2.add(user);
+        }
+        return ResultEntity.success("成功", userList2);
+    }
 }

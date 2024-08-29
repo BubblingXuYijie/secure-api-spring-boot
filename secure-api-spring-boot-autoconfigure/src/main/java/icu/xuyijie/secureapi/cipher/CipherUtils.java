@@ -262,22 +262,19 @@ public class CipherUtils {
     private byte[] rsaGroupEncrypt(String content, Cipher cipher) throws IllegalBlockSizeException, BadPaddingException, IOException {
         byte[] byteContent = content.getBytes(StandardCharsets.UTF_8);
         int inputLength = byteContent.length;
+        // 加密的时候不是密钥长度/8了，因为有padding策略还会增加字符，明文字节长度不能超过190
         int maxLength = 190;
         if (inputLength <= maxLength) {
             return cipher.doFinal(byteContent);
         }
 
-        // 开始分段加密
+        // 开始分段加密，分段加密不可直接使用多线程进行cipher.doFinal方法，Cipher会维持一个内部状态，多线程会互相干扰
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         int offset = 0;
         byte[] cache;
         int i = 0;
         while (inputLength - offset > 0) {
-            if (inputLength - offset > maxLength) {
-                cache = cipher.doFinal(byteContent, offset, maxLength);
-            } else {
-                cache = cipher.doFinal(byteContent, offset, inputLength - offset);
-            }
+            cache = cipher.doFinal(byteContent, offset, Math.min(maxLength, inputLength - offset));
             out.write(cache, 0, cache.length);
             i++;
             offset = i * maxLength;
@@ -426,17 +423,13 @@ public class CipherUtils {
             return cipher.doFinal(byteContent);
         }
 
-        // 开始分段解密
+        // 开始分段解密，分段加密不可直接使用多线程进行cipher.doFinal方法，Cipher会维持一个内部状态，多线程会互相干扰
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         int offset = 0;
         byte[] cache;
         int i = 0;
         while (inputLength - offset > 0) {
-            if (inputLength - offset > maxLength) {
-                cache = cipher.doFinal(byteContent, offset, maxLength);
-            } else {
-                cache = cipher.doFinal(byteContent, offset, inputLength - offset);
-            }
+            cache = cipher.doFinal(byteContent, offset, Math.min(maxLength, inputLength - offset));
             out.write(cache);
             i++;
             offset = i * maxLength;
