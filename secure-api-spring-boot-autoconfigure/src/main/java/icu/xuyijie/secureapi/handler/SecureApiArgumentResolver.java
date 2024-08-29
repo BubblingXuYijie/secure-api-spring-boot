@@ -1,5 +1,8 @@
 package icu.xuyijie.secureapi.handler;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import icu.xuyijie.secureapi.annotation.DecryptParam;
 import icu.xuyijie.secureapi.model.SecureApiPropertiesConfig;
 import icu.xuyijie.secureapi.threadlocal.SecureApiThreadLocal;
@@ -40,10 +43,12 @@ public class SecureApiArgumentResolver implements HandlerMethodArgumentResolver 
     private final Logger log = LoggerFactory.getLogger(SecureApiArgumentResolver.class);
 
     private final SecureApiPropertiesConfig secureApiPropertiesConfig;
+    private final ObjectMapper secureApiObjectMapper;
     private final List<DateTimeFormatter> dateFormatterList;
 
-    public SecureApiArgumentResolver(SecureApiPropertiesConfig secureApiPropertiesConfig) {
+    public SecureApiArgumentResolver(SecureApiPropertiesConfig secureApiPropertiesConfig, ObjectMapper secureApiObjectMapper) {
         this.secureApiPropertiesConfig = secureApiPropertiesConfig;
+        this.secureApiObjectMapper = secureApiObjectMapper;
         dateFormatterList = List.of(
                 DateTimeFormatter.ofPattern(this.secureApiPropertiesConfig.getDateFormat()),
                 DateTimeFormatter.ofPattern(this.secureApiPropertiesConfig.getLocalDateTimeFormat()),
@@ -194,23 +199,31 @@ public class SecureApiArgumentResolver implements HandlerMethodArgumentResolver 
      * @param s List进行toString后的字符串
      * @return 转回List数组
      */
-    private static String[] handleListString(String s) {
-        // 判断是否是合法的list字符串
-        if (s.length() > 1 && s.charAt(0) == '[' && s.charAt(s.length() - 1) == ']') {
-            // 去除字符串开头和结尾的[]
-            s = s.substring(0, s.length() - 1).replaceFirst("\\[", "");
-            // 如果不是空list
-            if (StringUtils.hasText(s)) {
-                // 如果字符串是list.toString转换出来的，那么逗号后面会有一个空格，还会用引号包裹每个元素，都要把它们去掉
-                if (s.charAt(0) == '"' && s.charAt(s.length() - 1) == '"' && (s.contains("\", \"") || s.contains("\",\""))) {
-                    s = s.substring(0, s.length() - 1).replaceFirst("\"", "").replace("\", \"", ",").replace("\",\"", ",");
-                } else {
-                    s = s.replace(", ", ",");
+    private List<String> handleListString(String s) {
+        try {
+            // 判断是否是合法的list字符串
+            if (s.length() > 1 && s.charAt(0) == '[' && s.charAt(s.length() - 1) == ']') {
+                // 去除字符串开头和结尾的[]
+                s = s.substring(0, s.length() - 1).replaceFirst("\\[", "");
+                // 如果不是空list
+                if (StringUtils.hasText(s)) {
+                    // 如果字符串是list.toString转换出来的，那么逗号后面会有一个空格，还会用引号包裹每个元素，都要把它们去掉
+                    if (s.charAt(0) == '"' && s.charAt(s.length() - 1) == '"' && (s.contains("\", \"") || s.contains("\",\""))) {
+                        s = s.substring(0, s.length() - 1).replaceFirst("\"", "").replace("\", \"", ",").replace("\",\"", ",");
+                    } else {
+                        s = s.replace(", ", ",");
+                    }
+                    return Arrays.asList(s.split(","));
                 }
-                return s.split(",");
+            }
+        } catch (Exception e) {
+            try {
+                return secureApiObjectMapper.readValue(s, new TypeReference<>() {});
+            } catch (JsonProcessingException ex) {
+                log.error("非法的List字符串，无法反序列化为list：{}", s);
             }
         }
-        return new String[0];
+        return Collections.emptyList();
     }
 
     /**
@@ -226,11 +239,11 @@ public class SecureApiArgumentResolver implements HandlerMethodArgumentResolver 
         }
         Object o = null;
         if (List.class.isAssignableFrom(parameterType)) {
-            o = new ArrayList<>(Arrays.asList(handleListString(parameterValue)));
+            o = new ArrayList<>(handleListString(parameterValue));
         } else if (Set.class.isAssignableFrom(parameterType)) {
-            o = new HashSet<>(Arrays.asList(handleListString(parameterValue)));
+            o = new HashSet<>(handleListString(parameterValue));
         } else if (Queue.class.isAssignableFrom(parameterType)) {
-            o = new PriorityQueue<>(Arrays.asList(handleListString(parameterValue)));
+            o = new PriorityQueue<>(handleListString(parameterValue));
         } else if (Map.class.isAssignableFrom(parameterType)) {
             String[] kvs = parameterValue.replace("\"", "").replace("{", "").replace("}", "").replace(" ", "").split(",");
             if (kvs.length > 0 && StringUtils.hasText(kvs[0])) {
