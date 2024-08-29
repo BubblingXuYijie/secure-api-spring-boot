@@ -11,7 +11,7 @@ secure-api:
   private-key:
   encrypt-url:
     include-urls: /**
-    exclude-urls:
+    exclude-urls: /test,/test2
   decrypt-url:
     include-urls: /**
     exclude-urls:
