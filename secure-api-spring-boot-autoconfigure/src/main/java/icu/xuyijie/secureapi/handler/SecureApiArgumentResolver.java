@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import icu.xuyijie.secureapi.annotation.DecryptParam;
+import icu.xuyijie.secureapi.config.ThreadPoolConfig;
 import icu.xuyijie.secureapi.model.SecureApiPropertiesConfig;
 import icu.xuyijie.secureapi.threadlocal.SecureApiThreadLocal;
 import org.slf4j.Logger;
@@ -12,6 +13,7 @@ import org.springframework.beans.ConversionNotSupportedException;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.core.MethodParameter;
 import org.springframework.lang.NonNull;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
@@ -32,6 +34,7 @@ import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.Temporal;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * @author 徐一杰
@@ -41,6 +44,7 @@ import java.util.*;
 @Component
 public class SecureApiArgumentResolver implements HandlerMethodArgumentResolver {
     private final Logger log = LoggerFactory.getLogger(SecureApiArgumentResolver.class);
+    private final ThreadPoolTaskExecutor threadPool = ThreadPoolConfig.secureThreadPool();
 
     private final SecureApiPropertiesConfig secureApiPropertiesConfig;
     private final ObjectMapper secureApiObjectMapper;
@@ -239,11 +243,11 @@ public class SecureApiArgumentResolver implements HandlerMethodArgumentResolver 
         }
         Object o = null;
         if (List.class.isAssignableFrom(parameterType)) {
-            o = new ArrayList<>(Arrays.asList(handleListString(parameterValue)));
+            o = new ArrayList<>(handleListString(parameterValue));
         } else if (Set.class.isAssignableFrom(parameterType)) {
-            o = new HashSet<>(Arrays.asList(handleListString(parameterValue)));
+            o = new HashSet<>(handleListString(parameterValue));
         } else if (Queue.class.isAssignableFrom(parameterType)) {
-            o = new PriorityQueue<>(Arrays.asList(handleListString(parameterValue)));
+            o = new PriorityQueue<>(handleListString(parameterValue));
         } else if (Map.class.isAssignableFrom(parameterType)) {
             String[] kvs = parameterValue.replace("\"", "").replace("{", "").replace("}", "").replace(" ", "").split(",");
             if (kvs.length > 0 && StringUtils.hasText(kvs[0])) {
@@ -267,50 +271,55 @@ public class SecureApiArgumentResolver implements HandlerMethodArgumentResolver 
      * @param result 实体类实例
      */
     private void getAllFields(WebRequest webRequest, Class<?> parameterType, Object result) {
+        // 实体类字段一般会比较多，采用异步编排提高性能
+        List<CompletableFuture<Void>> completableFutureList = new ArrayList<>();
         Class<?> clazz = parameterType;
         while (clazz != null) {
             for (Field field : clazz.getDeclaredFields()) {
-                field.setAccessible(true);
-                String fieldName = field.getName();
-                try {
-                    if (Modifier.isFinal(field.getModifiers())) {
-                        continue;
-                    }
-                    // 获取对应字段参数值
-                    String encryptField = webRequest.getParameter(fieldName);
-                    String objectParameterValue = encryptField;
-                    boolean fieldAnnotationPresent = field.isAnnotationPresent(DecryptParam.class);
-                    boolean isDecryptField = fieldAnnotationPresent || SecureApiThreadLocal.getIsDecryptApi();
-                    if (isDecryptField) {
-                        // 解密字段参数值
-                        objectParameterValue = CipherModeHandler.handleDecryptMode(objectParameterValue, secureApiPropertiesConfig);
-                        showLog(parameterType.getSimpleName() + "." + fieldName, encryptField, objectParameterValue);
-                    }
-                    // 获取字段类型
-                    Class<?> fieldType = field.getType();
-                    // 获取字段包装类型
-                    Class<?> fieldPackageType = ClassUtils.resolvePrimitiveIfNecessary(fieldType);
-                    // 设置对象字段值
-                    Object o = getObjectByType(fieldPackageType, objectParameterValue);
-                    // 转换String字符串为实体类字段类型
-                    if (StringUtils.hasText(objectParameterValue) && o == null) {
-                        // 处理日期类型
-                        if (fieldPackageType == Date.class || Temporal.class.isAssignableFrom(fieldPackageType)) {
-                            o = convertStringAsDate(objectParameterValue, fieldPackageType);
-                        } else {
-                            Constructor<?> constructor = fieldPackageType.getConstructor(objectParameterValue.getClass());
-                            o = constructor.newInstance(objectParameterValue);
+                completableFutureList.add(CompletableFuture.runAsync(() -> {
+                    field.setAccessible(true);
+                    String fieldName = field.getName();
+                    try {
+                        if (Modifier.isFinal(field.getModifiers())) {
+                            return;
                         }
+                        // 获取对应字段参数值
+                        String encryptField = webRequest.getParameter(fieldName);
+                        String objectParameterValue = encryptField;
+                        boolean fieldAnnotationPresent = field.isAnnotationPresent(DecryptParam.class);
+                        boolean isDecryptField = fieldAnnotationPresent || SecureApiThreadLocal.getIsDecryptApi();
+                        if (isDecryptField) {
+                            // 解密字段参数值
+                            objectParameterValue = CipherModeHandler.handleDecryptMode(objectParameterValue, secureApiPropertiesConfig);
+                            showLog(parameterType.getSimpleName() + "." + fieldName, encryptField, objectParameterValue);
+                        }
+                        // 获取字段类型
+                        Class<?> fieldType = field.getType();
+                        // 获取字段包装类型
+                        Class<?> fieldPackageType = ClassUtils.resolvePrimitiveIfNecessary(fieldType);
+                        // 设置对象字段值
+                        Object o = getObjectByType(fieldPackageType, objectParameterValue);
+                        // 转换String字符串为实体类字段类型
+                        if (StringUtils.hasText(objectParameterValue) && o == null) {
+                            // 处理日期类型
+                            if (fieldPackageType == Date.class || Temporal.class.isAssignableFrom(fieldPackageType)) {
+                                o = convertStringAsDate(objectParameterValue, fieldPackageType);
+                            } else {
+                                Constructor<?> constructor = fieldPackageType.getConstructor(objectParameterValue.getClass());
+                                o = constructor.newInstance(objectParameterValue);
+                            }
+                        }
+                        if (o != null) {
+                            field.set(result, o);
+                        }
+                    } catch (Exception e) {
+                        log.error("实体类字段：{} 设置出现异常，跳过此字段值的设置", parameterType.getSimpleName() + "." + fieldName, e);
                     }
-                    if (o != null) {
-                        field.set(result, o);
-                    }
-                } catch (Exception e) {
-                    log.error("实体类字段：{} 设置出现异常，跳过此字段值的设置", parameterType.getSimpleName() + "." + fieldName, e);
-                }
+                }, threadPool));
             }
             clazz = clazz.getSuperclass();
         }
+        CompletableFuture.allOf(completableFutureList.toArray(new CompletableFuture[0])).join();
     }
 
     /**

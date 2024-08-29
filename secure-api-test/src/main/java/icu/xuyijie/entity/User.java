@@ -17,6 +17,8 @@ public class User extends People {
     @DecryptParam
     private List<String> role;
 
+    private final String test = "test";
+
     @DecryptParam
     private LocalDateTime createTime;
 
@@ -55,11 +57,16 @@ public class User extends People {
         this.editTime = editTime;
     }
 
+    public String getTest() {
+        return test;
+    }
+
     @Override
     public String toString() {
         return "User{" +
                 "id=" + id +
                 ", role=" + role +
+                ", test='" + test + '\'' +
                 ", createTime=" + createTime +
                 ", editTime=" + editTime +
                 '}';
