@@ -244,6 +244,8 @@ public class SecureApiArgumentResolver implements HandlerMethodArgumentResolver 
         Object o = null;
         if (List.class.isAssignableFrom(parameterType)) {
             o = new ArrayList<>(handleListString(parameterValue));
+        } else if (parameterType.isArray()) {
+            o = handleListString(parameterValue);
         } else if (Set.class.isAssignableFrom(parameterType)) {
             o = new HashSet<>(handleListString(parameterValue));
         } else if (Queue.class.isAssignableFrom(parameterType)) {
