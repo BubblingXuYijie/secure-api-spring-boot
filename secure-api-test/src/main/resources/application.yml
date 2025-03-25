@@ -1,5 +1,6 @@
 secure-api:
   enabled: false
+  sign-enabled: true
   show-log: true
   url-safe: true
   mode: common
