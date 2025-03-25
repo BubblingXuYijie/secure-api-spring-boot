@@ -9,6 +9,8 @@ secure-api:
   iv:
   public-key:
   private-key:
+  sign-public-key:
+  sign-private-key:
   encrypt-url:
     include-urls: /**
     exclude-urls:
