@@ -14,6 +14,11 @@ public class SecureApiPropertiesConfig {
     private boolean enabled = false;
 
     /**
+     * 是否开启数字签名校验功能
+     */
+    private boolean signEnabled = false;
+
+    /**
      * 生成的base64是否是urlSafe的
      */
     private boolean isUrlSafe = true;
@@ -59,6 +64,16 @@ public class SecureApiPropertiesConfig {
     private String privateKey;
 
     /**
+     * 数字签名公钥
+     */
+    private String signPublicKey;
+
+    /**
+     * 数字签名私钥
+     */
+    private String signPrivateKey;
+
+    /**
      * 加密url配置
      */
     private SecureApiProperties.UrlPattern encryptUrl = new SecureApiProperties.UrlPattern();
@@ -83,6 +98,15 @@ public class SecureApiPropertiesConfig {
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
     }
+
+    public boolean isSignEnabled() {
+        return signEnabled;
+    }
+
+    public void setSignEnabled(boolean signEnabled) {
+        this.signEnabled = signEnabled;
+    }
+
 
     public boolean isUrlSafe() {
         return isUrlSafe;
@@ -156,6 +180,22 @@ public class SecureApiPropertiesConfig {
         this.privateKey = privateKey;
     }
 
+    public String getSignPublicKey() {
+        return signPublicKey;
+    }
+
+    public void setSignPublicKey(String signPublicKey) {
+        this.signPublicKey = signPublicKey;
+    }
+
+    public String getSignPrivateKey() {
+        return signPrivateKey;
+    }
+
+    public void setSignPrivateKey(String signPrivateKey) {
+        this.signPrivateKey = signPrivateKey;
+    }
+
     public SecureApiProperties.UrlPattern getEncryptUrl() {
         return encryptUrl;
     }
@@ -208,6 +248,7 @@ public class SecureApiPropertiesConfig {
     public String toString() {
         return "SecureApiPropertiesConfig{" +
                 "enabled=" + enabled +
+                ", signEnabled=" + signEnabled +
                 ", isUrlSafe=" + isUrlSafe +
                 ", showLog=" + showLog +
                 ", mode=" + mode +
@@ -217,6 +258,8 @@ public class SecureApiPropertiesConfig {
                 ", iv='" + iv + '\'' +
                 ", publicKey='" + publicKey + '\'' +
                 ", privateKey='" + privateKey + '\'' +
+                ", signPublicKey='" + signPublicKey + '\'' +
+                ", signPrivateKey='" + signPrivateKey + '\'' +
                 ", encryptUrl=" + encryptUrl +
                 ", decryptUrl=" + decryptUrl +
                 ", dateFormat='" + dateFormat + '\'' +

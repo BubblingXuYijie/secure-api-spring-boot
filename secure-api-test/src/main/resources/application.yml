@@ -1,5 +1,6 @@
 secure-api:
   enabled: false
+  sign-enabled: true
   show-log: true
   url-safe: true
   mode: common
@@ -9,6 +10,8 @@ secure-api:
   iv:
   public-key:
   private-key:
+  sign-public-key:
+  sign-private-key:
   encrypt-url:
     include-urls: /**
     exclude-urls:

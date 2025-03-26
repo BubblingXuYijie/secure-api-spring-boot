@@ -3,6 +3,7 @@ package icu.xuyijie.secureapi.autoconfigure;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import icu.xuyijie.secureapi.cipher.CipherAlgorithmEnum;
 import icu.xuyijie.secureapi.cipher.CipherUtils;
+import icu.xuyijie.secureapi.cipher.RSASignatureUtils;
 import icu.xuyijie.secureapi.config.ObjectMapperConfig;
 import icu.xuyijie.secureapi.exception.ErrorEnum;
 import icu.xuyijie.secureapi.exception.SecureApiException;
@@ -36,6 +37,7 @@ public class SecureApiAutoConfigure {
     public SecureApiPropertiesConfig secureApiPropertiesConfig() {
         SecureApiPropertiesConfig secureApiPropertiesConfig = new SecureApiPropertiesConfig();
         secureApiPropertiesConfig.setEnabled(secureApiProperties.isEnabled());
+        secureApiPropertiesConfig.setSignEnabled(secureApiProperties.isSignEnabled());
         secureApiPropertiesConfig.setShowLog(secureApiProperties.isShowLog());
         secureApiPropertiesConfig.setUrlSafe(secureApiProperties.isUrlSafe());
         secureApiPropertiesConfig.setMode(secureApiProperties.getMode());
@@ -45,6 +47,8 @@ public class SecureApiAutoConfigure {
         secureApiPropertiesConfig.setIv(secureApiProperties.getIv());
         secureApiPropertiesConfig.setPublicKey(secureApiProperties.getPublicKey());
         secureApiPropertiesConfig.setPrivateKey(secureApiProperties.getPrivateKey());
+        secureApiPropertiesConfig.setSignPublicKey(secureApiProperties.getSignPublicKey());
+        secureApiPropertiesConfig.setSignPrivateKey(secureApiProperties.getSignPrivateKey());
         secureApiPropertiesConfig.setEncryptUrl(secureApiProperties.getEncryptUrl());
         secureApiPropertiesConfig.setDecryptUrl(secureApiProperties.getDecryptUrl());
         secureApiPropertiesConfig.setDateFormat(secureApiProperties.getDateFormat());
@@ -71,10 +75,15 @@ public class SecureApiAutoConfigure {
             // 如果用户没有配置key，根据加密算法自动生成key并打印在控制台
             cipherAlgorithmEnum.generateKeyIfAbsent(secureApiPropertiesConfig);
             if (SecureApiProperties.Mode.COMMON == mode) {
-                log.info("\n已开启接口加密\n日志打印：{}\n密文UrlSafe：{}\n模式：{}\n加解密算法：{}\n加密URL配置：{}\n解密URL配置：{}\nDate格式化：{}\nLocalDateTime格式化：{}\nLocalDate格式化：{}\nLocalTime格式化：{}", secureApiPropertiesConfig.isShowLog(), secureApiPropertiesConfig.isUrlSafe(), mode, cipherAlgorithmEnum, secureApiPropertiesConfig.getEncryptUrl(), secureApiPropertiesConfig.getDecryptUrl(), secureApiPropertiesConfig.getDateFormat(), secureApiPropertiesConfig.getLocalDateTimeFormat(), secureApiPropertiesConfig.getLocalDateFormat(), secureApiPropertiesConfig.getLocalTimeFormat());
+                log.info("\n已开启接口加密\n日志打印：{}\n密文UrlSafe：{}\n模式：{}\n加解密算法：{}\n加密URL配置：{}\n解密URL配置：{}\nDate格式化：{}\nLocalDateTime格式化：{}\nLocalDate格式化：{}\nLocalTime格式化：{}\n数字签名：{}", secureApiPropertiesConfig.isShowLog(), secureApiPropertiesConfig.isUrlSafe(), mode, cipherAlgorithmEnum, secureApiPropertiesConfig.getEncryptUrl(), secureApiPropertiesConfig.getDecryptUrl(), secureApiPropertiesConfig.getDateFormat(), secureApiPropertiesConfig.getLocalDateTimeFormat(), secureApiPropertiesConfig.getLocalDateFormat(), secureApiPropertiesConfig.getLocalTimeFormat(), secureApiPropertiesConfig.isSignEnabled());
             } else {
-                log.info("\n已开启接口加密\n日志打印：{}\n密文UrlSafe：{}\n模式：{}\n会话密钥算法：{}\n加解密算法：{}\n加密URL配置：{}\n解密URL配置：{}\nDate格式化：{}\nLocalDateTime格式化：{}\nLocalDate格式化：{}\nLocalTime格式化：{}", secureApiPropertiesConfig.isShowLog(), secureApiPropertiesConfig.isUrlSafe(), mode, secureApiPropertiesConfig.getSessionKeyCipherAlgorithm(), cipherAlgorithmEnum, secureApiPropertiesConfig.getEncryptUrl(), secureApiPropertiesConfig.getDecryptUrl(), secureApiPropertiesConfig.getDateFormat(), secureApiPropertiesConfig.getLocalDateTimeFormat(), secureApiPropertiesConfig.getLocalDateFormat(), secureApiPropertiesConfig.getLocalTimeFormat());
+                log.info("\n已开启接口加密\n日志打印：{}\n密文UrlSafe：{}\n模式：{}\n会话密钥算法：{}\n加解密算法：{}\n加密URL配置：{}\n解密URL配置：{}\nDate格式化：{}\nLocalDateTime格式化：{}\nLocalDate格式化：{}\nLocalTime格式化：{}\n数字签名：{}", secureApiPropertiesConfig.isShowLog(), secureApiPropertiesConfig.isUrlSafe(), mode, secureApiPropertiesConfig.getSessionKeyCipherAlgorithm(), cipherAlgorithmEnum, secureApiPropertiesConfig.getEncryptUrl(), secureApiPropertiesConfig.getDecryptUrl(), secureApiPropertiesConfig.getDateFormat(), secureApiPropertiesConfig.getLocalDateTimeFormat(), secureApiPropertiesConfig.getLocalDateFormat(), secureApiPropertiesConfig.getLocalTimeFormat(), secureApiPropertiesConfig.isSignEnabled());
             }
+        }
+        if(secureApiPropertiesConfig.isSignEnabled()){
+            // 如果用户没有配置数字签名验证的公、私钥，自动生成key并打印在控制台
+            RSASignatureUtils rsaSignatureUtils = new RSASignatureUtils(secureApiPropertiesConfig);
+            rsaSignatureUtils.generateKeyPair();
         }
         return cipherUtils;
     }
