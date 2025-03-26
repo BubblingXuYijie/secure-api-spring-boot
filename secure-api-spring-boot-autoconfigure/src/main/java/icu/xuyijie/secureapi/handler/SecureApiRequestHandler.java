@@ -2,6 +2,7 @@ package icu.xuyijie.secureapi.handler;
 
 import icu.xuyijie.secureapi.annotation.DecryptApi;
 import icu.xuyijie.secureapi.annotation.EncryptApi;
+import icu.xuyijie.secureapi.cipher.RsaSignatureUtils;
 import icu.xuyijie.secureapi.model.SecureApiProperties;
 import icu.xuyijie.secureapi.model.SecureApiPropertiesConfig;
 import icu.xuyijie.secureapi.threadlocal.SecureApiThreadLocal;
@@ -26,9 +27,11 @@ import java.lang.reflect.Type;
 @RestControllerAdvice
 public class SecureApiRequestHandler implements RequestBodyAdvice {
     private final SecureApiPropertiesConfig secureApiPropertiesConfig;
+    private final RsaSignatureUtils rsaSignatureUtils;
 
-    public SecureApiRequestHandler(SecureApiPropertiesConfig secureApiPropertiesConfig) {
+    public SecureApiRequestHandler(SecureApiPropertiesConfig secureApiPropertiesConfig, RsaSignatureUtils rsaSignatureUtils) {
         this.secureApiPropertiesConfig = secureApiPropertiesConfig;
+        this.rsaSignatureUtils = rsaSignatureUtils;
     }
 
     @Override
@@ -49,7 +52,7 @@ public class SecureApiRequestHandler implements RequestBodyAdvice {
     @Override
     @NonNull
     public HttpInputMessage beforeBodyRead(@NonNull HttpInputMessage inputMessage, MethodParameter parameter, @NonNull Type targetType, @NonNull Class<? extends HttpMessageConverter<?>> converterType) throws IOException {
-        return new DecryptHttpInputMessage(parameter.getMethod(), inputMessage, secureApiPropertiesConfig);
+        return new DecryptHttpInputMessage(parameter.getMethod(), inputMessage, secureApiPropertiesConfig, rsaSignatureUtils);
     }
 
     @Override

@@ -19,6 +19,11 @@ public class SecureApiProperties {
     private boolean enabled = false;
 
     /**
+     * 是否开启数字签名校验功能
+     */
+    private boolean signEnabled = false;
+
+    /**
      * 生成的base64是否是urlSafe的
      */
     private boolean isUrlSafe = true;
@@ -62,6 +67,16 @@ public class SecureApiProperties {
      * RSA算法时需要配置的私钥
      */
     private String privateKey;
+
+    /**
+     * 数字签名公钥
+     */
+    private String signPublicKey;
+
+    /**
+     * 数字签名私钥
+     */
+    private String signPrivateKey;
 
     /**
      * 加密url配置
@@ -137,6 +152,14 @@ public class SecureApiProperties {
         this.enabled = enabled;
     }
 
+    public boolean isSignEnabled() {
+        return signEnabled;
+    }
+
+    public void setSignEnabled(boolean signEnabled) {
+        this.signEnabled = signEnabled;
+    }
+
     public boolean isUrlSafe() {
         return isUrlSafe;
     }
@@ -209,6 +232,22 @@ public class SecureApiProperties {
         this.privateKey = privateKey;
     }
 
+    public String getSignPublicKey() {
+        return signPublicKey;
+    }
+
+    public void setSignPublicKey(String signPublicKey) {
+        this.signPublicKey = signPublicKey;
+    }
+
+    public String getSignPrivateKey() {
+        return signPrivateKey;
+    }
+
+    public void setSignPrivateKey(String signPrivateKey) {
+        this.signPrivateKey = signPrivateKey;
+    }
+
     public UrlPattern getEncryptUrl() {
         return encryptUrl;
     }
@@ -261,6 +300,7 @@ public class SecureApiProperties {
     public String toString() {
         return "SecureApiProperties{" +
                 "enabled=" + enabled +
+                ", signEnabled=" + signEnabled +
                 ", isUrlSafe=" + isUrlSafe +
                 ", showLog=" + showLog +
                 ", mode=" + mode +
@@ -270,6 +310,8 @@ public class SecureApiProperties {
                 ", iv='" + iv + '\'' +
                 ", publicKey='" + publicKey + '\'' +
                 ", privateKey='" + privateKey + '\'' +
+                ", signPublicKey='" + signPublicKey + '\'' +
+                ", signPrivateKey='" + signPrivateKey + '\'' +
                 ", encryptUrl=" + encryptUrl +
                 ", decryptUrl=" + decryptUrl +
                 ", dateFormat='" + dateFormat + '\'' +

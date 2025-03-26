@@ -26,6 +26,7 @@ public class SecureApiConfig {
     public SecureApiPropertiesConfig secureApiPropertiesConfig() {
         SecureApiPropertiesConfig secureApiPropertiesConfig = new SecureApiPropertiesConfig();
         secureApiPropertiesConfig.setEnabled(true);
+        secureApiPropertiesConfig.setSignEnabled(true);
         secureApiPropertiesConfig.setUrlSafe(true);
         secureApiPropertiesConfig.setShowLog(true);
         secureApiPropertiesConfig.setMode(SecureApiProperties.Mode.COMMON);
@@ -39,6 +40,11 @@ public class SecureApiConfig {
         // 把生成的密钥对设置到secureApiPropertiesConfig
         secureApiPropertiesConfig.setPublicKey(randomRsaKeyPair.getPublicKey());
         secureApiPropertiesConfig.setPrivateKey(randomRsaKeyPair.getPrivateKey());
+
+        // 数字签名密钥设置
+        RsaKeyPair randomRsaKeyPair2 = cipherUtils.getRandomRsaKeyPair("2");
+        secureApiPropertiesConfig.setSignPublicKey(randomRsaKeyPair2.getPublicKey());
+        secureApiPropertiesConfig.setSignPrivateKey(randomRsaKeyPair2.getPrivateKey());
 
         // 不需要使用url匹配功能可以删除掉下面两行，或者传入空数组
         secureApiPropertiesConfig.setEncryptUrl(new SecureApiProperties.UrlPattern(Arrays.asList("/**"), new ArrayList<>()));

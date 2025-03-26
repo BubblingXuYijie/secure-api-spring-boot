@@ -1,5 +1,8 @@
 package icu.xuyijie.secureapi.handler;
 
+import icu.xuyijie.secureapi.cipher.RsaSignatureUtils;
+import icu.xuyijie.secureapi.exception.ErrorEnum;
+import icu.xuyijie.secureapi.exception.SecureApiException;
 import icu.xuyijie.secureapi.model.SecureApiProperties;
 import icu.xuyijie.secureapi.model.SecureApiPropertiesConfig;
 import org.slf4j.Logger;
@@ -7,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpInputMessage;
 import org.springframework.lang.NonNull;
+import org.springframework.util.StringUtils;
 
 import java.io.*;
 import java.lang.reflect.Method;
@@ -22,10 +26,11 @@ public class DecryptHttpInputMessage implements HttpInputMessage {
     private final HttpHeaders httpHeaders;
     private final InputStream body;
 
-    public DecryptHttpInputMessage(Method method, HttpInputMessage inputMessage, SecureApiPropertiesConfig secureApiPropertiesConfig) {
+    public DecryptHttpInputMessage(Method method, HttpInputMessage inputMessage, SecureApiPropertiesConfig secureApiPropertiesConfig, RsaSignatureUtils rsaSignatureUtils) {
         // 一般请求头里的内容不做加密解密处理
         httpHeaders = inputMessage.getHeaders();
-
+        // 数字签名
+        String signature = httpHeaders.getFirst("X-signature");
         // 取出请求的body
         String content;
         try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputMessage.getBody()))) {
@@ -45,13 +50,23 @@ public class DecryptHttpInputMessage implements HttpInputMessage {
 
         // 解密
         String decryptBody = CipherModeHandler.handleDecryptMode(content, secureApiPropertiesConfig);
-        body = new ByteArrayInputStream(decryptBody.getBytes());
+        byte[] decryptBodyBytes = decryptBody.getBytes();
+        body = new ByteArrayInputStream(decryptBodyBytes);
+
+        // 数字签名校验
+        boolean signVerify = true;
+        if (secureApiPropertiesConfig.isSignEnabled()) {
+            signVerify = rsaSignatureUtils.verify(decryptBodyBytes, signature);
+            if (!signVerify) {
+                throw new SecureApiException(ErrorEnum.SIGNATURE_ERROR);
+            }
+        }
 
         if (secureApiPropertiesConfig.isShowLog()) {
             if (SecureApiProperties.Mode.COMMON == secureApiPropertiesConfig.getMode()) {
-                log.info("\n接口参数体解密\n方法：{}\n模式：{}\n解密算法：{}\n解密前：{}\n解密后：{}", method, secureApiPropertiesConfig.getMode(), secureApiPropertiesConfig.getCipherAlgorithmEnum(), content, decryptBody);
+                log.info("\n接口参数体解密\n方法：{}\n模式：{}\n解密算法：{}\n解密前：{}\n解密后：{}\n数字签名：{}\n校验结果：{}", method, secureApiPropertiesConfig.getMode(), secureApiPropertiesConfig.getCipherAlgorithmEnum(), content, decryptBody, signature, signVerify);
             } else {
-                log.info("\n接口参数体解密\n方法：{}\n模式：{}\n会话密钥算法：{}\n解密算法：{}\n解密前：{}\n解密后：{}", method, secureApiPropertiesConfig.getMode(), secureApiPropertiesConfig.getSessionKeyCipherAlgorithm(), secureApiPropertiesConfig.getCipherAlgorithmEnum(), content, decryptBody);
+                log.info("\n接口参数体解密\n方法：{}\n模式：{}\n会话密钥算法：{}\n解密算法：{}\n解密前：{}\n解密后：{}\n数字签名：{}\n校验结果：{}", method, secureApiPropertiesConfig.getMode(), secureApiPropertiesConfig.getSessionKeyCipherAlgorithm(), secureApiPropertiesConfig.getCipherAlgorithmEnum(), content, decryptBody, signature, signVerify);
             }
         }
     }

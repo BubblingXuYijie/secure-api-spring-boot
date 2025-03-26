@@ -184,6 +184,12 @@ public class CipherUtils {
         return new RsaKeyPair();
     }
 
+    /**
+     * 根据随机数种子获取 SecureRandom
+     *
+     * @param seed 随机数种子
+     * @return SecureRandom
+     */
     private SecureRandom getSecureRandom(String seed) {
         try {
             // 此类提供加密的强随机数生成器 (RNG)，该实现在windows上每次生成的key都相同，但是在部分linux或solaris系统上则不同。
