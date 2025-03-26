@@ -55,7 +55,7 @@ public class DecryptHttpInputMessage implements HttpInputMessage {
 
         // 数字签名校验
         boolean signVerify = true;
-        if (secureApiPropertiesConfig.isSignEnabled() && StringUtils.hasText(signature)) {
+        if (secureApiPropertiesConfig.isSignEnabled()) {
             signVerify = rsaSignatureUtils.verify(decryptBodyBytes, signature);
             if (!signVerify) {
                 throw new SecureApiException(ErrorEnum.SIGNATURE_ERROR);
