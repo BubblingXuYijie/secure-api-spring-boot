@@ -113,7 +113,7 @@ public class RsaSignatureUtils {
      * @param seed 随机数种子
      * @return RsaKeyPair对象
      */
-    public RsaKeyPair getRandomRsaKeyPair(String seed) {
+    private RsaKeyPair getRandomRsaKeyPair(String seed) {
         try {
             // KeyPairGenerator类用于生成公钥和私钥对，基于RSA算法生成对象
             KeyPairGenerator keyPairGen = KeyPairGenerator.getInstance(KeyGenAlgorithmEnum.RSA.getValue());
