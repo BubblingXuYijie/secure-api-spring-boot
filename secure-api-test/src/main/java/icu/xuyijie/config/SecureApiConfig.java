@@ -40,6 +40,7 @@ public class SecureApiConfig {
         secureApiPropertiesConfig.setPublicKey(randomRsaKeyPair.getPublicKey());
         secureApiPropertiesConfig.setPrivateKey(randomRsaKeyPair.getPrivateKey());
 
+        // 配置数字签名校验密钥对
         RsaKeyPair randomRsaKeyPair2 = cipherUtils.getRandomRsaKeyPair("2");
         secureApiPropertiesConfig.setSignPublicKey(randomRsaKeyPair2.getPublicKey());
         secureApiPropertiesConfig.setSignPrivateKey(randomRsaKeyPair2.getPrivateKey());
