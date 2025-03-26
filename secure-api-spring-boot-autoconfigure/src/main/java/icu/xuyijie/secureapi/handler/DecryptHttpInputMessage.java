@@ -1,17 +1,16 @@
 package icu.xuyijie.secureapi.handler;
 
-import cn.hutool.core.util.StrUtil;
-import icu.xuyijie.secureapi.cipher.RSASignatureUtils;
+import icu.xuyijie.secureapi.cipher.RsaSignatureUtils;
 import icu.xuyijie.secureapi.exception.ErrorEnum;
 import icu.xuyijie.secureapi.exception.SecureApiException;
 import icu.xuyijie.secureapi.model.SecureApiProperties;
 import icu.xuyijie.secureapi.model.SecureApiPropertiesConfig;
-import org.apache.tomcat.util.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpInputMessage;
 import org.springframework.lang.NonNull;
+import org.springframework.util.StringUtils;
 
 import java.io.*;
 import java.lang.reflect.Method;
@@ -27,7 +26,7 @@ public class DecryptHttpInputMessage implements HttpInputMessage {
     private final HttpHeaders httpHeaders;
     private final InputStream body;
 
-    public DecryptHttpInputMessage(Method method, HttpInputMessage inputMessage, SecureApiPropertiesConfig secureApiPropertiesConfig) {
+    public DecryptHttpInputMessage(Method method, HttpInputMessage inputMessage, SecureApiPropertiesConfig secureApiPropertiesConfig, RsaSignatureUtils rsaSignatureUtils) {
         // 一般请求头里的内容不做加密解密处理
         httpHeaders = inputMessage.getHeaders();
         // 数字签名
@@ -51,13 +50,13 @@ public class DecryptHttpInputMessage implements HttpInputMessage {
 
         // 解密
         String decryptBody = CipherModeHandler.handleDecryptMode(content, secureApiPropertiesConfig);
-        body = new ByteArrayInputStream(decryptBody.getBytes());
+        byte[] decryptBodyBytes = decryptBody.getBytes();
+        body = new ByteArrayInputStream(decryptBodyBytes);
 
         // 数字签名校验
-        boolean signVerify = true; // 默认为true 校验通过
-        if (secureApiPropertiesConfig.isSignEnabled() && StrUtil.isNotEmpty(signature)) {
-            RSASignatureUtils rsaEncryptionUtils = new RSASignatureUtils(secureApiPropertiesConfig);
-            signVerify = rsaEncryptionUtils.verify(decryptBody.getBytes(), Base64.decodeBase64(signature));
+        boolean signVerify = true;
+        if (secureApiPropertiesConfig.isSignEnabled() && StringUtils.hasText(signature)) {
+            signVerify = rsaSignatureUtils.verify(decryptBodyBytes, signature);
             if (!signVerify) {
                 throw new SecureApiException(ErrorEnum.SIGNATURE_ERROR);
             }

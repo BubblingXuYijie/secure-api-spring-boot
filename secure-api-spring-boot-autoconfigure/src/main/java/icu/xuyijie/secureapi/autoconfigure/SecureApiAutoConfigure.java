@@ -3,7 +3,7 @@ package icu.xuyijie.secureapi.autoconfigure;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import icu.xuyijie.secureapi.cipher.CipherAlgorithmEnum;
 import icu.xuyijie.secureapi.cipher.CipherUtils;
-import icu.xuyijie.secureapi.cipher.RSASignatureUtils;
+import icu.xuyijie.secureapi.cipher.RsaSignatureUtils;
 import icu.xuyijie.secureapi.config.ObjectMapperConfig;
 import icu.xuyijie.secureapi.exception.ErrorEnum;
 import icu.xuyijie.secureapi.exception.SecureApiException;
@@ -80,12 +80,18 @@ public class SecureApiAutoConfigure {
                 log.info("\n已开启接口加密\n日志打印：{}\n密文UrlSafe：{}\n模式：{}\n会话密钥算法：{}\n加解密算法：{}\n加密URL配置：{}\n解密URL配置：{}\nDate格式化：{}\nLocalDateTime格式化：{}\nLocalDate格式化：{}\nLocalTime格式化：{}\n数字签名：{}", secureApiPropertiesConfig.isShowLog(), secureApiPropertiesConfig.isUrlSafe(), mode, secureApiPropertiesConfig.getSessionKeyCipherAlgorithm(), cipherAlgorithmEnum, secureApiPropertiesConfig.getEncryptUrl(), secureApiPropertiesConfig.getDecryptUrl(), secureApiPropertiesConfig.getDateFormat(), secureApiPropertiesConfig.getLocalDateTimeFormat(), secureApiPropertiesConfig.getLocalDateFormat(), secureApiPropertiesConfig.getLocalTimeFormat(), secureApiPropertiesConfig.isSignEnabled());
             }
         }
-        if(secureApiPropertiesConfig.isSignEnabled()){
-            // 如果用户没有配置数字签名验证的公、私钥，自动生成key并打印在控制台
-            RSASignatureUtils rsaSignatureUtils = new RSASignatureUtils(secureApiPropertiesConfig);
-            rsaSignatureUtils.generateKeyPair();
-        }
         return cipherUtils;
+    }
+
+    @Bean
+    @ConditionalOnBean({SecureApiPropertiesConfig.class})
+    public RsaSignatureUtils rsaSignatureUtils(SecureApiPropertiesConfig secureApiPropertiesConfig) {
+        RsaSignatureUtils rsaSignatureUtils = new RsaSignatureUtils(secureApiPropertiesConfig);
+        if (secureApiPropertiesConfig.isSignEnabled()) {
+            // 如果用户没有配置数字签名验证的公、私钥，自动生成key并打印在控制台
+            rsaSignatureUtils.generateKeyIfAbsent();
+        }
+        return rsaSignatureUtils;
     }
 
     @Bean

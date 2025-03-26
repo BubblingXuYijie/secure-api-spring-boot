@@ -15,6 +15,13 @@
       "defaultValue": false
     },
     {
+      "name": "secure-api.signEnabled",
+      "type": "java.lang.Boolean",
+      "description": "是否开启接口数据数字签名校验",
+      "sourceType": "icu.xuyijie.secureapi.model.SecureApiProperties",
+      "defaultValue": false
+    },
+    {
       "name": "secure-api.url-safe",
       "type": "java.lang.Boolean",
       "description": "生成的base64是否是urlSafe的",
@@ -71,6 +78,18 @@
       "name": "secure-api.private-key",
       "type": "java.lang.String",
       "description": "RSA算法时需要配置的私钥",
+      "sourceType": "icu.xuyijie.secureapi.model.SecureApiProperties"
+    },
+    {
+      "name": "secure-api.sign-public-key",
+      "type": "java.lang.String",
+      "description": "开启数字签名校验需要配置的RSA公钥",
+      "sourceType": "icu.xuyijie.secureapi.model.SecureApiProperties"
+    },
+    {
+      "name": "secure-api.sign-private-key",
+      "type": "java.lang.String",
+      "description": "开启数字签名校验需要配置的RSA私钥",
       "sourceType": "icu.xuyijie.secureapi.model.SecureApiProperties"
     },
     {
