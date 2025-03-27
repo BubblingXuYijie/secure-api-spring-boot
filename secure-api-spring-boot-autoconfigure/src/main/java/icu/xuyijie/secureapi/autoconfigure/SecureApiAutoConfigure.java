@@ -12,7 +12,6 @@ import icu.xuyijie.secureapi.model.SecureApiPropertiesConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -60,7 +59,6 @@ public class SecureApiAutoConfigure {
     }
 
     @Bean
-    @ConditionalOnBean({SecureApiPropertiesConfig.class})
     public CipherUtils cipherUtils(SecureApiPropertiesConfig secureApiPropertiesConfig) {
         // 初始化CipherUtils
         CipherAlgorithmEnum cipherAlgorithmEnum = secureApiPropertiesConfig.getCipherAlgorithmEnum();
@@ -85,7 +83,6 @@ public class SecureApiAutoConfigure {
     }
 
     @Bean
-    @ConditionalOnBean({SecureApiPropertiesConfig.class})
     public RsaSignatureUtils rsaSignatureUtils(SecureApiPropertiesConfig secureApiPropertiesConfig) {
         RsaSignatureUtils rsaSignatureUtils = new RsaSignatureUtils(secureApiPropertiesConfig);
         if (secureApiPropertiesConfig.isSignEnabled()) {
@@ -97,7 +94,6 @@ public class SecureApiAutoConfigure {
     }
 
     @Bean
-    @ConditionalOnBean({SecureApiPropertiesConfig.class})
     public ObjectMapper secureApiObjectMapper(SecureApiPropertiesConfig secureApiPropertiesConfig, Jackson2ObjectMapperBuilder jackson2ObjectMapperBuilder) {
         return new ObjectMapperConfig(secureApiPropertiesConfig, jackson2ObjectMapperBuilder).myObjectMapper();
     }
