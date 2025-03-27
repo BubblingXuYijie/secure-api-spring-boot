@@ -12,7 +12,6 @@ import icu.xuyijie.secureapi.model.SecureApiPropertiesConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -60,7 +59,6 @@ public class SecureApiAutoConfigure {
     }
 
     @Bean
-    @ConditionalOnBean({SecureApiPropertiesConfig.class})
     public CipherUtils cipherUtils(SecureApiPropertiesConfig secureApiPropertiesConfig) {
         // 初始化CipherUtils
         CipherAlgorithmEnum cipherAlgorithmEnum = secureApiPropertiesConfig.getCipherAlgorithmEnum();
@@ -76,19 +74,19 @@ public class SecureApiAutoConfigure {
             // 如果用户没有配置key，根据加密算法自动生成key并打印在控制台
             cipherAlgorithmEnum.generateKeyIfAbsent(secureApiPropertiesConfig);
             if (SecureApiProperties.Mode.COMMON == mode) {
-                log.info("\n已开启接口加密\n日志打印：{}\n密文UrlSafe：{}\n模式：{}\n加解密算法：{}\n加密URL配置：{}\n解密URL配置：{}\nDate格式化：{}\nLocalDateTime格式化：{}\nLocalDate格式化：{}\nLocalTime格式化：{}\n数字签名：{}", secureApiPropertiesConfig.isShowLog(), secureApiPropertiesConfig.isUrlSafe(), mode, cipherAlgorithmEnum, secureApiPropertiesConfig.getEncryptUrl(), secureApiPropertiesConfig.getDecryptUrl(), secureApiPropertiesConfig.getDateFormat(), secureApiPropertiesConfig.getLocalDateTimeFormat(), secureApiPropertiesConfig.getLocalDateFormat(), secureApiPropertiesConfig.getLocalTimeFormat(), secureApiPropertiesConfig.isSignEnabled());
+                log.info("\n已开启接口加密\n日志打印：{}\n密文UrlSafe：{}\n模式：{}\n加解密算法：{}\n加密URL配置：{}\n解密URL配置：{}\nDate格式化：{}\nLocalDateTime格式化：{}\nLocalDate格式化：{}\nLocalTime格式化：{}", secureApiPropertiesConfig.isShowLog(), secureApiPropertiesConfig.isUrlSafe(), mode, cipherAlgorithmEnum, secureApiPropertiesConfig.getEncryptUrl(), secureApiPropertiesConfig.getDecryptUrl(), secureApiPropertiesConfig.getDateFormat(), secureApiPropertiesConfig.getLocalDateTimeFormat(), secureApiPropertiesConfig.getLocalDateFormat(), secureApiPropertiesConfig.getLocalTimeFormat());
             } else {
-                log.info("\n已开启接口加密\n日志打印：{}\n密文UrlSafe：{}\n模式：{}\n会话密钥算法：{}\n加解密算法：{}\n加密URL配置：{}\n解密URL配置：{}\nDate格式化：{}\nLocalDateTime格式化：{}\nLocalDate格式化：{}\nLocalTime格式化：{}\n数字签名：{}", secureApiPropertiesConfig.isShowLog(), secureApiPropertiesConfig.isUrlSafe(), mode, secureApiPropertiesConfig.getSessionKeyCipherAlgorithm(), cipherAlgorithmEnum, secureApiPropertiesConfig.getEncryptUrl(), secureApiPropertiesConfig.getDecryptUrl(), secureApiPropertiesConfig.getDateFormat(), secureApiPropertiesConfig.getLocalDateTimeFormat(), secureApiPropertiesConfig.getLocalDateFormat(), secureApiPropertiesConfig.getLocalTimeFormat(), secureApiPropertiesConfig.isSignEnabled());
+                log.info("\n已开启接口加密\n日志打印：{}\n密文UrlSafe：{}\n模式：{}\n会话密钥算法：{}\n加解密算法：{}\n加密URL配置：{}\n解密URL配置：{}\nDate格式化：{}\nLocalDateTime格式化：{}\nLocalDate格式化：{}\nLocalTime格式化：{}", secureApiPropertiesConfig.isShowLog(), secureApiPropertiesConfig.isUrlSafe(), mode, secureApiPropertiesConfig.getSessionKeyCipherAlgorithm(), cipherAlgorithmEnum, secureApiPropertiesConfig.getEncryptUrl(), secureApiPropertiesConfig.getDecryptUrl(), secureApiPropertiesConfig.getDateFormat(), secureApiPropertiesConfig.getLocalDateTimeFormat(), secureApiPropertiesConfig.getLocalDateFormat(), secureApiPropertiesConfig.getLocalTimeFormat());
             }
         }
         return cipherUtils;
     }
 
     @Bean
-    @ConditionalOnBean({SecureApiPropertiesConfig.class})
     public RsaSignatureUtils rsaSignatureUtils(SecureApiPropertiesConfig secureApiPropertiesConfig) {
         RsaSignatureUtils rsaSignatureUtils = new RsaSignatureUtils(secureApiPropertiesConfig);
         if (secureApiPropertiesConfig.isSignEnabled()) {
+            log.info("\n接口数据数字签名校验已开启");
             // 如果用户没有配置数字签名验证的公、私钥，自动生成key并打印在控制台
             rsaSignatureUtils.generateKeyIfAbsent();
         }
@@ -96,7 +94,6 @@ public class SecureApiAutoConfigure {
     }
 
     @Bean
-    @ConditionalOnBean({SecureApiPropertiesConfig.class})
     public ObjectMapper secureApiObjectMapper(SecureApiPropertiesConfig secureApiPropertiesConfig, Jackson2ObjectMapperBuilder jackson2ObjectMapperBuilder) {
         return new ObjectMapperConfig(secureApiPropertiesConfig, jackson2ObjectMapperBuilder).myObjectMapper();
     }
