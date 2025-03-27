@@ -16,6 +16,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 
 /**
  * @author 徐一杰
@@ -96,7 +97,7 @@ public class SecureApiAutoConfigure {
 
     @Bean
     @ConditionalOnBean({SecureApiPropertiesConfig.class})
-    public ObjectMapper secureApiObjectMapper(SecureApiPropertiesConfig secureApiPropertiesConfig) {
-        return new ObjectMapperConfig(secureApiPropertiesConfig).myObjectMapper();
+    public ObjectMapper secureApiObjectMapper(SecureApiPropertiesConfig secureApiPropertiesConfig, Jackson2ObjectMapperBuilder jackson2ObjectMapperBuilder) {
+        return new ObjectMapperConfig(secureApiPropertiesConfig, jackson2ObjectMapperBuilder).myObjectMapper();
     }
 }
