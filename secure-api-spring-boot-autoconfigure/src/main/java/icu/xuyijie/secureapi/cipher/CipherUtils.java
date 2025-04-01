@@ -16,7 +16,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
-import java.util.*;
+import java.util.Arrays;
 
 /**
  * @author 徐一杰
@@ -25,11 +25,6 @@ import java.util.*;
  */
 public class CipherUtils {
     private final Logger log = LoggerFactory.getLogger(CipherUtils.class);
-
-    /**
-     * 生成的base64是否是urlSafe的
-     */
-    private final boolean isUrlSafe;
 
     /**
      * 加密算法
@@ -51,22 +46,24 @@ public class CipherUtils {
      */
     private String paddingString = "";
 
+    private final PublicUtils publicUtils;
+
     public CipherUtils() {
-        this.isUrlSafe = true;
         this.keyGenAlgorithmEnum = KeyGenAlgorithmEnum.AES;
         this.cipherAlgorithmEnum = CipherAlgorithmEnum.AES_ECB_PKCS5;
+        publicUtils = new PublicUtils(true);
     }
 
     public CipherUtils(CipherAlgorithmEnum cipherAlgorithmEnum) {
-        this.isUrlSafe = true;
         this.keyGenAlgorithmEnum = cipherAlgorithmEnum.getKeyGenEnum();
         this.cipherAlgorithmEnum = cipherAlgorithmEnum;
+        publicUtils = new PublicUtils(true);
     }
 
     public CipherUtils(CipherAlgorithmEnum cipherAlgorithmEnum, boolean isUrlSafe) {
-        this.isUrlSafe = isUrlSafe;
         this.keyGenAlgorithmEnum = cipherAlgorithmEnum.getKeyGenEnum();
         this.cipherAlgorithmEnum = cipherAlgorithmEnum;
+        publicUtils = new PublicUtils(isUrlSafe);
     }
 
     static {
@@ -99,14 +96,14 @@ public class CipherUtils {
      */
     public String getRandomSecreteKey(String seed) {
         try {
-            //返回生成指定算法密钥生成器的 KeyGenerator 对象
+            // 返回生成指定算法密钥生成器的 KeyGenerator 对象
             KeyGenerator keyGen = KeyGenerator.getInstance(keyGenAlgorithmEnum.getValue());
-            SecureRandom secureRandom = getSecureRandom(seed);
-            //AES 要求密钥长度为 128/192/256，DES 56，DESede 168
+            SecureRandom secureRandom = publicUtils.getSecureRandom(seed);
+            // AES 要求密钥长度为 128/192/256，DES 56，DESede 168
             keyGen.init(keyGenAlgorithmEnum.getLength(), secureRandom);
-            //生成一个密钥
+            // 生成一个密钥
             SecretKey secretKey = keyGen.generateKey();
-            return byte2Base64(secretKey.getEncoded());
+            return publicUtils.byte2Base64(secretKey.getEncoded());
         } catch (NoSuchAlgorithmException ex) {
             log.error("生成随机秘钥异常！");
         }
@@ -130,7 +127,7 @@ public class CipherUtils {
      */
     public String getRandomIv(String seed) {
         String randomString = getRandomString(cipherAlgorithmEnum.getIvLength(), seed);
-        return byte2Base64(randomString.getBytes(StandardCharsets.UTF_8));
+        return publicUtils.byte2Base64(randomString.getBytes(StandardCharsets.UTF_8));
     }
 
     /**
@@ -141,7 +138,7 @@ public class CipherUtils {
      * @return 随机字符串
      */
     private String getRandomString(int length, String seed) {
-        SecureRandom secureRandom = getSecureRandom(seed);
+        SecureRandom secureRandom = publicUtils.getSecureRandom(seed);
         StringBuilder sb = new StringBuilder(length);
         for (int i = 0; i < length; i++) {
             int index = secureRandom.nextInt(CHARACTERS.length());
@@ -164,46 +161,8 @@ public class CipherUtils {
      * @return RsaKeyPair对象
      */
     public RsaKeyPair getRandomRsaKeyPair(String seed) {
-        try {
-            // KeyPairGenerator类用于生成公钥和私钥对，基于RSA算法生成对象
-            KeyPairGenerator keyPairGen = KeyPairGenerator.getInstance(KeyGenAlgorithmEnum.RSA.getValue());
-            SecureRandom secureRandom = getSecureRandom(seed);
-            // 初始化密钥对生成器，密钥大小为96-1024位
-            keyPairGen.initialize(KeyGenAlgorithmEnum.RSA.getLength(), secureRandom);
-            // 生成一个密钥对，保存在keyPair中
-            KeyPair keyPair = keyPairGen.generateKeyPair();
-            PublicKey publicKey = keyPair.getPublic();
-            PrivateKey privateKey = keyPair.getPrivate();
-            // 得到密钥字符串
-            String publicKeyString = byte2Base64(publicKey.getEncoded());
-            String privateKeyString = byte2Base64(privateKey.getEncoded());
-            return new RsaKeyPair(publicKeyString, privateKeyString);
-        } catch (NoSuchAlgorithmException e) {
-            log.error("获取RSA密钥对失败，使用默认密钥对", e);
-        }
-        return new RsaKeyPair();
-    }
-
-    /**
-     * 根据随机数种子获取 SecureRandom
-     *
-     * @param seed 随机数种子
-     * @return SecureRandom
-     */
-    private SecureRandom getSecureRandom(String seed) {
-        try {
-            // 此类提供加密的强随机数生成器 (RNG)，该实现在windows上每次生成的key都相同，但是在部分linux或solaris系统上则不同。
-            // SecureRandom random = new SecureRandom(key.getBytes())
-            // 指定算法名称，这样不同的系统上每次生成的key都是相同的
-            SecureRandom secureRandom = SecureRandom.getInstance("SHA1PRNG");
-            if (StringUtils.hasText(seed)) {
-                secureRandom.setSeed(seed.getBytes(StandardCharsets.UTF_8));
-            }
-            return secureRandom;
-        } catch (NoSuchAlgorithmException e) {
-            log.error("获取SecureRandom实例错误", e);
-        }
-        return StringUtils.hasText(seed) ? new SecureRandom(seed.getBytes(StandardCharsets.UTF_8)) : new SecureRandom();
+        KeyPair keyPair = publicUtils.getRandomKeyPair(seed);
+        return publicUtils.getRsaKeyPairByKeyPair(keyPair);
     }
 
     /**
@@ -249,12 +208,12 @@ public class CipherUtils {
             // 创建密码器
             Cipher cipher = Cipher.getInstance(cipherAlgorithmEnum.getValue());
             // 初始化RSA加密模式的密码器，new X509EncodedKeySpec从byte[]恢复KeySpec对象
-            PublicKey pubKey = KeyFactory.getInstance(keyGenAlgorithmEnum.getValue()).generatePublic(new X509EncodedKeySpec(base642Byte(key)));
+            PublicKey pubKey = KeyFactory.getInstance(keyGenAlgorithmEnum.getValue()).generatePublic(new X509EncodedKeySpec(publicUtils.base642Byte(key)));
             cipher.init(Cipher.ENCRYPT_MODE, pubKey);
             // 加密
             byte[] result = rsaGroupEncrypt(content, cipher);
             //通过Base64转码返回
-            return byte2Base64(result);
+            return publicUtils.byte2Base64(result);
         } catch (Exception e) {
             log.error("RSA加密失败", e);
             throw new SecureApiException(ErrorEnum.RSA_ENCRYPT_ERROR);
@@ -308,7 +267,7 @@ public class CipherUtils {
             byte[] byteContent = content.getBytes(StandardCharsets.UTF_8);
             // 初始化为加密模式的密码器，ECB模式不设置iv
             if (StringUtils.hasText(iv)) {
-                IvParameterSpec ivParameterSpec = new IvParameterSpec(base642Byte(iv));
+                IvParameterSpec ivParameterSpec = new IvParameterSpec(publicUtils.base642Byte(iv));
                 cipher.init(Cipher.ENCRYPT_MODE, getSecretKeySpec(key), ivParameterSpec);
             } else {
                 cipher.init(Cipher.ENCRYPT_MODE, getSecretKeySpec(key));
@@ -318,7 +277,7 @@ public class CipherUtils {
             // 加密
             byte[] result = cipher.doFinal(byteContent);
             // 通过Base64转码返回
-            return byte2Base64(result);
+            return publicUtils.byte2Base64(result);
         } catch (Exception e) {
             log.error("加密失败", e);
             throw new SecureApiException(ErrorEnum.ENCRYPT_ERROR);
@@ -381,13 +340,13 @@ public class CipherUtils {
             Cipher cipher = Cipher.getInstance(cipherAlgorithmEnum.getValue());
             // 使用密钥初始化，设置为解密模式，ECB模式不设置iv
             if (StringUtils.hasText(iv)) {
-                IvParameterSpec ivParameterSpec = new IvParameterSpec(base642Byte(iv));
+                IvParameterSpec ivParameterSpec = new IvParameterSpec(publicUtils.base642Byte(iv));
                 cipher.init(Cipher.DECRYPT_MODE, getSecretKeySpec(key), ivParameterSpec);
             } else {
                 cipher.init(Cipher.DECRYPT_MODE, getSecretKeySpec(key));
             }
             // 执行操作
-            byte[] result = cipher.doFinal(base642Byte(content));
+            byte[] result = cipher.doFinal(publicUtils.base642Byte(content));
             // 去除最后匹配到的补全字符
             return new String(result, StandardCharsets.UTF_8).replaceAll(paddingString + "$", "");
         } catch (Exception e) {
@@ -408,7 +367,7 @@ public class CipherUtils {
             // 实例化密钥器
             Cipher cipher = Cipher.getInstance(cipherAlgorithmEnum.getValue());
             // 使用密钥初始化，设置为解密模式
-            PrivateKey priKey = KeyFactory.getInstance(keyGenAlgorithmEnum.getValue()).generatePrivate(new PKCS8EncodedKeySpec(base642Byte(key)));
+            PrivateKey priKey = KeyFactory.getInstance(keyGenAlgorithmEnum.getValue()).generatePrivate(new PKCS8EncodedKeySpec(publicUtils.base642Byte(key)));
             cipher.init(Cipher.DECRYPT_MODE, priKey);
             // 执行操作
             byte[] result = rsaGroupDecrypt(content, cipher);
@@ -426,7 +385,7 @@ public class CipherUtils {
      * @return 明文字节数组
      */
     private byte[] rsaGroupDecrypt(String content, Cipher cipher) throws IllegalBlockSizeException, BadPaddingException, IOException {
-        byte[] byteContent = base642Byte(content);
+        byte[] byteContent = publicUtils.base642Byte(content);
         int inputLength = byteContent.length;
         int maxLength = keyGenAlgorithmEnum.getLength() / 8;
         if (inputLength <= maxLength) {
@@ -456,35 +415,7 @@ public class CipherUtils {
      */
     private SecretKeySpec getSecretKeySpec(String key) {
         // 转换为密钥
-        return new SecretKeySpec(base642Byte(key), 0, keyGenAlgorithmEnum.getLength() / 8, keyGenAlgorithmEnum.getValue());
-    }
-
-    /**
-     * 字节数组转Base64编码
-     *
-     * @param bytes 字节数组
-     * @return Base64
-     */
-    private String byte2Base64(byte[] bytes) {
-        if (isUrlSafe) {
-            return Base64.getUrlEncoder().encodeToString(bytes);
-        } else {
-            return Base64.getEncoder().encodeToString(bytes);
-        }
-    }
-
-    /**
-     * Base64编码转字节数组
-     *
-     * @param base64Str Base64
-     * @return 字节数组
-     */
-    private byte[] base642Byte(String base64Str) {
-        if (isUrlSafe) {
-            return Base64.getUrlDecoder().decode(base64Str);
-        } else {
-            return Base64.getDecoder().decode(base64Str);
-        }
+        return new SecretKeySpec(publicUtils.base642Byte(key), 0, keyGenAlgorithmEnum.getLength() / 8, keyGenAlgorithmEnum.getValue());
     }
 
 //    public static void main(String[] args) {
