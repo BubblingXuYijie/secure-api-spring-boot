@@ -1,9 +1,9 @@
 package icu.xuyijie.secureapi.autoconfigure;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import icu.xuyijie.secureapi.cipher.CipherAlgorithmEnum;
-import icu.xuyijie.secureapi.cipher.CipherUtils;
-import icu.xuyijie.secureapi.cipher.RsaSignatureUtils;
+import icu.xuyijie.secureapi.cipher.enums.CipherAlgorithmEnum;
+import icu.xuyijie.secureapi.cipher.utils.CipherUtils;
+import icu.xuyijie.secureapi.cipher.utils.RsaSignatureUtils;
 import icu.xuyijie.secureapi.config.ObjectMapperConfig;
 import icu.xuyijie.secureapi.exception.ErrorEnum;
 import icu.xuyijie.secureapi.exception.SecureApiException;

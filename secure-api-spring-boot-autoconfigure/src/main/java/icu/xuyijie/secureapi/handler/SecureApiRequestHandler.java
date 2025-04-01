@@ -2,7 +2,7 @@ package icu.xuyijie.secureapi.handler;
 
 import icu.xuyijie.secureapi.annotation.DecryptApi;
 import icu.xuyijie.secureapi.annotation.EncryptApi;
-import icu.xuyijie.secureapi.cipher.RsaSignatureUtils;
+import icu.xuyijie.secureapi.cipher.utils.RsaSignatureUtils;
 import icu.xuyijie.secureapi.model.SecureApiProperties;
 import icu.xuyijie.secureapi.model.SecureApiPropertiesConfig;
 import icu.xuyijie.secureapi.threadlocal.SecureApiThreadLocal;

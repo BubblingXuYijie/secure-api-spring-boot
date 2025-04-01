@@ -1,4 +1,4 @@
-package icu.xuyijie.secureapi.cipher;
+package icu.xuyijie.secureapi.cipher.model;
 
 /**
  * @author 徐一杰

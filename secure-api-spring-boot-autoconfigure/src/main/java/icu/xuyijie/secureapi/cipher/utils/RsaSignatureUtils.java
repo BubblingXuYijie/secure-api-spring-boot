@@ -1,5 +1,6 @@
-package icu.xuyijie.secureapi.cipher;
+package icu.xuyijie.secureapi.cipher.utils;
 
+import icu.xuyijie.secureapi.cipher.model.RsaKeyPair;
 import icu.xuyijie.secureapi.exception.ErrorEnum;
 import icu.xuyijie.secureapi.exception.SecureApiException;
 import icu.xuyijie.secureapi.model.SecureApiPropertiesConfig;

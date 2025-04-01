@@ -44,14 +44,14 @@
     },
     {
       "name": "secure-api.cipher-algorithm",
-      "type": "icu.xuyijie.secureapi.cipher.CipherAlgorithmEnum",
+      "type": "icu.xuyijie.secureapi.cipher.enums.CipherAlgorithmEnum",
       "description": "加密算法",
       "sourceType": "icu.xuyijie.secureapi.model.SecureApiProperties",
       "defaultValue": "aes_ecb_pkcs5"
     },
     {
       "name": "secure-api.session-key-cipher-algorithm",
-      "type": "icu.xuyijie.secureapi.cipher.CipherAlgorithmEnum",
+      "type": "icu.xuyijie.secureapi.cipher.enums.CipherAlgorithmEnum",
       "description": "会话密钥算法",
       "sourceType": "icu.xuyijie.secureapi.model.SecureApiProperties",
       "defaultValue": "aes_ecb_pkcs5"
