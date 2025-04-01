@@ -1,6 +1,6 @@
 package icu.xuyijie.secureapi.model;
 
-import icu.xuyijie.secureapi.cipher.CipherAlgorithmEnum;
+import icu.xuyijie.secureapi.cipher.enums.CipherAlgorithmEnum;
 
 /**
  * @author 徐一杰

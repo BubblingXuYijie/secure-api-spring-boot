@@ -1,8 +1,8 @@
 package icu.xuyijie.config;
 
-import icu.xuyijie.secureapi.cipher.CipherAlgorithmEnum;
-import icu.xuyijie.secureapi.cipher.CipherUtils;
-import icu.xuyijie.secureapi.cipher.RsaKeyPair;
+import icu.xuyijie.secureapi.cipher.enums.CipherAlgorithmEnum;
+import icu.xuyijie.secureapi.cipher.utils.CipherUtils;
+import icu.xuyijie.secureapi.cipher.model.RsaKeyPair;
 import icu.xuyijie.secureapi.model.SecureApiProperties;
 import icu.xuyijie.secureapi.model.SecureApiPropertiesConfig;
 import org.springframework.boot.SpringBootConfiguration;
