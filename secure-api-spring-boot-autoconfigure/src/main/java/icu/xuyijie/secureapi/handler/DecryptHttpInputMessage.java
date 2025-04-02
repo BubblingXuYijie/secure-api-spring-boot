@@ -13,6 +13,7 @@ import org.springframework.lang.NonNull;
 
 import java.io.*;
 import java.lang.reflect.Method;
+import java.nio.charset.StandardCharsets;
 import java.util.stream.Collectors;
 
 /**
@@ -49,7 +50,7 @@ public class DecryptHttpInputMessage implements HttpInputMessage {
 
         // 解密
         String decryptBody = CipherModeHandler.handleDecryptMode(content, secureApiPropertiesConfig);
-        byte[] decryptBodyBytes = decryptBody.getBytes();
+        byte[] decryptBodyBytes = decryptBody.getBytes(StandardCharsets.UTF_8);
         body = new ByteArrayInputStream(decryptBodyBytes);
 
         // 数字签名校验
