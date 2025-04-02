@@ -69,18 +69,13 @@ public class RsaSignatureUtils {
         }
     }
 
-    public String sign(byte[] data) {
-        return sign(data, null);
-    }
-
     /**
      * 获取RSA数字签名
      *
      * @param data 待签名数据
-     * @param seed 随机数种子
      * @return base64 数字签名
      */
-    public String sign(byte[] data, String seed) {
+    public String sign(byte[] data) {
         try {
             // 初始化Signature对象
             Signature signature = Signature.getInstance("SHA512withRSA");
@@ -104,6 +99,10 @@ public class RsaSignatureUtils {
      * @return boolean 校验成功返回true，失败返回false
      */
     public boolean verify(byte[] data, String signed) {
+        if (!StringUtils.hasLength(signed)) {
+            log.error("数字签名为空");
+            throw new SecureApiException(ErrorEnum.SIGNATURE_ERROR);
+        }
         try {
             // 初始化Signature对象
             Signature signature = Signature.getInstance("SHA512withRSA");
