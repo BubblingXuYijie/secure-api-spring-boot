@@ -224,7 +224,7 @@ public class SecureApiArgumentResolver implements HandlerMethodArgumentResolver 
             try {
                 return secureApiObjectMapper.readValue(s, new TypeReference<List<String>>() {});
             } catch (JsonProcessingException ex) {
-                log.error("非法的List字符串，无法反序列化为list：{}", s);
+                log.error("非法的List字符串，无法反序列化为list：{}", s, ex);
             }
         }
         return Collections.emptyList();
@@ -251,19 +251,48 @@ public class SecureApiArgumentResolver implements HandlerMethodArgumentResolver 
         } else if (Queue.class.isAssignableFrom(parameterType)) {
             o = new PriorityQueue<>(handleListString(parameterValue));
         } else if (Map.class.isAssignableFrom(parameterType)) {
-            String[] kvs = parameterValue.replace("\"", "").replace("{", "").replace("}", "").replace(" ", "").split(",");
-            if (kvs.length > 0 && StringUtils.hasText(kvs[0])) {
-                Map<String, String> map = new HashMap<>(kvs.length);
-                for (String kv : kvs) {
-                    String[] split = kv.split("=");
-                    map.put(split[0], split[1]);
+            try {
+                // 这种情况适用于 map.toString() 方法转换的字符串形式：["a=哈哈", "b=嘿嘿"]
+                // 去除可能因数据转换过程中产生的收尾多余的双引号、大括号、空格
+                String s = handleHeadAndTailQuotationMarks(parameterValue);
+                if (s.length() > 1 && s.charAt(0) == '{' && s.charAt(s.length() - 1) == '}') {
+                    s = s.substring(1, s.length() - 1);
                 }
-                o = map;
-            } else {
-                o = new HashMap<>(0);
+                String[] kvs = s.split(",");
+                if (kvs.length > 0 && StringUtils.hasText(kvs[0])) {
+                    Map<String, String> map = new HashMap<>(kvs.length);
+                    for (String kv : kvs) {
+                        String[] split = kv.split("=");
+                        map.put(split[0].replace(" ", ""), split[1]);
+                    }
+                    o = map;
+                } else {
+                    o = new HashMap<>(0);
+                }
+            } catch (Exception e) {
+                try {
+                    // 去除可能因数据转换过程中产生的收尾多余的双引号
+                    String s = handleHeadAndTailQuotationMarks(parameterValue);
+                    o = secureApiObjectMapper.readValue(s, Map.class);
+                } catch (JsonProcessingException ex) {
+                    log.error("参数值：{} 不符合map格式，转换失败", parameterValue, ex);
+                }
             }
         }
         return o;
+    }
+
+    /**
+     * 去除可能因数据转换过程中产生的收尾多余的双引号
+     *
+     * @param s 原始字符串
+     * @return 去除了头部和尾部双引号的字符串
+     */
+    private String handleHeadAndTailQuotationMarks(String s) {
+        if (s.length() > 1 && s.charAt(0) == '"' && s.charAt(s.length() - 1) == '"') {
+            s = s.substring(1, s.length() - 1);
+        }
+        return s;
     }
 
     /**
