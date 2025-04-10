@@ -1,8 +1,8 @@
 package icu.xuyijie.secureapi.config;
 
 import icu.xuyijie.secureapi.threadlocal.SecureApiThreadLocal;
-import jakarta.annotation.Nonnull;
 import org.springframework.core.task.TaskDecorator;
+import org.springframework.lang.NonNull;
 
 /**
  * @author 徐一杰
@@ -10,9 +10,9 @@ import org.springframework.core.task.TaskDecorator;
  * @description 线程数据传递
  */
 public class MyTaskDecorator implements TaskDecorator {
-    @Nonnull
+    @NonNull
     @Override
-    public Runnable decorate(@Nonnull Runnable runnable) {
+    public Runnable decorate(@NonNull Runnable runnable) {
         boolean isEncryptApi = SecureApiThreadLocal.getIsEncryptApi();
         boolean isDecryptApi = SecureApiThreadLocal.getIsDecryptApi();
         return () -> {
