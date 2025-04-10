@@ -1,7 +1,7 @@
 package icu.xuyijie.secureapi.handler;
 
 import icu.xuyijie.secureapi.annotation.DecryptApi;
-import icu.xuyijie.secureapi.annotation.EncryptApi;
+import icu.xuyijie.secureapi.annotation.DecryptIgnore;
 import icu.xuyijie.secureapi.cipher.utils.RsaSignatureUtils;
 import icu.xuyijie.secureapi.model.SecureApiProperties;
 import icu.xuyijie.secureapi.model.SecureApiPropertiesConfig;
@@ -40,11 +40,11 @@ public class SecureApiRequestHandler implements RequestBodyAdvice {
             Method method = methodParameter.getMethod();
             if (method != null) {
                 Class<?> declaringClass = method.getDeclaringClass();
-                if (declaringClass.isAnnotationPresent(EncryptApi.class) || method.isAnnotationPresent(DecryptApi.class)) {
+                if (declaringClass.isAnnotationPresent(DecryptApi.class) || method.isAnnotationPresent(DecryptApi.class)) {
                     return true;
                 }
+                return SecureApiThreadLocal.getIsDecryptApi() && !method.isAnnotationPresent(DecryptIgnore.class) && !declaringClass.isAnnotationPresent(DecryptIgnore.class);
             }
-            return SecureApiThreadLocal.getIsDecryptApi();
         }
         return false;
     }
