@@ -5,6 +5,7 @@ import icu.xuyijie.entity.User;
 import icu.xuyijie.secureapi.annotation.DecryptApi;
 import icu.xuyijie.secureapi.annotation.DecryptParam;
 import icu.xuyijie.secureapi.annotation.EncryptApi;
+import icu.xuyijie.secureapi.annotation.EncryptIgnore;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -19,6 +20,7 @@ import java.util.*;
 @RequestMapping("secureApiTest")
 public class TestController {
     @RequestMapping("/testForm")
+    @EncryptIgnore
     public User testForm(User user, @DecryptParam Integer age, @DecryptParam Map<String, String> map, @DecryptParam(required = false) Set<String> set, @DecryptParam(required = false) List<String> localDateTimeStringList) {
         System.out.println(user);
         System.out.println(user.getName());

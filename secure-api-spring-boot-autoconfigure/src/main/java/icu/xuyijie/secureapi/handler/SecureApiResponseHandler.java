@@ -3,6 +3,7 @@ package icu.xuyijie.secureapi.handler;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import icu.xuyijie.secureapi.annotation.EncryptApi;
+import icu.xuyijie.secureapi.annotation.EncryptIgnore;
 import icu.xuyijie.secureapi.model.SecureApiProperties;
 import icu.xuyijie.secureapi.model.SecureApiPropertiesConfig;
 import icu.xuyijie.secureapi.threadlocal.SecureApiThreadLocal;
@@ -47,7 +48,7 @@ public class SecureApiResponseHandler implements ResponseBodyAdvice<Object> {
             if (declaringClass.isAnnotationPresent(EncryptApi.class) || returnType.hasMethodAnnotation(EncryptApi.class)) {
                 return true;
             }
-            return SecureApiThreadLocal.getIsEncryptApi();
+            return SecureApiThreadLocal.getIsEncryptApi() && !returnType.hasMethodAnnotation(EncryptIgnore.class) && !declaringClass.isAnnotationPresent(EncryptIgnore.class);
         }
         return false;
     }

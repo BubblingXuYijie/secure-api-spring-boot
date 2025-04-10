@@ -22,6 +22,7 @@ public class ThreadPoolConfig {
         executor.setQueueCapacity(Integer.MAX_VALUE);
         executor.setKeepAliveSeconds(60);
         executor.setThreadNamePrefix("secureThreadPool-");
+        executor.setTaskDecorator(new MyTaskDecorator());
         executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
         executor.setWaitForTasksToCompleteOnShutdown(true);
         executor.setAwaitTerminationSeconds(3);
