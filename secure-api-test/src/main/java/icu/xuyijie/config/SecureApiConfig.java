@@ -46,8 +46,8 @@ public class SecureApiConfig {
         secureApiPropertiesConfig.setSignPrivateKey(randomRsaKeyPair2.getPrivateKey());
 
         // 不需要使用url匹配功能可以删除掉下面两行，或者传入空数组
-        secureApiPropertiesConfig.setEncryptUrl(new SecureApiProperties.UrlPattern(List.of("/**"), List.of()));
-        secureApiPropertiesConfig.setDecryptUrl(new SecureApiProperties.UrlPattern(List.of("/**"), List.of("/secureApiTest/testForm")));
+        secureApiPropertiesConfig.setEncryptUrl(new SecureApiProperties.UrlPattern(List.of("/**"), List.of("/v3/**")));
+        secureApiPropertiesConfig.setDecryptUrl(new SecureApiProperties.UrlPattern(List.of("/**"), List.of("/v3/**", "/secureApiTest/testForm")));
         return secureApiPropertiesConfig;
     }
 }
