@@ -45,6 +45,8 @@ public class SecureApiConfig {
         secureApiPropertiesConfig.setSignPublicKey(randomRsaKeyPair2.getPublicKey());
         secureApiPropertiesConfig.setSignPrivateKey(randomRsaKeyPair2.getPrivateKey());
 
+        //secureApiPropertiesConfig.setResponseBodyDataField("data")
+
         // 不需要使用url匹配功能可以删除掉下面两行，或者传入空数组
         secureApiPropertiesConfig.setEncryptUrl(new SecureApiProperties.UrlPattern(List.of("/**"), List.of()));
         secureApiPropertiesConfig.setDecryptUrl(new SecureApiProperties.UrlPattern(List.of("/**"), List.of("/secureApiTest/testForm")));

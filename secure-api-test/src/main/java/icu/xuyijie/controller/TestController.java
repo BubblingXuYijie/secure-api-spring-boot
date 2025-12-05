@@ -68,6 +68,7 @@ public class TestController {
         for (int i = 0; i < 100; i++) {
             User user = new User();
             user.setId(i);
+            user.setCreateTime(LocalDateTime.now());
             userList2.add(user);
         }
         return ResultEntity.success("成功", userList2);

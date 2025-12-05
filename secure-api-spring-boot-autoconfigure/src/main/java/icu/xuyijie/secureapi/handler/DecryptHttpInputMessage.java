@@ -1,6 +1,7 @@
 package icu.xuyijie.secureapi.handler;
 
 import icu.xuyijie.secureapi.cipher.utils.RsaSignatureUtils;
+import icu.xuyijie.secureapi.constant.HeaderConstant;
 import icu.xuyijie.secureapi.exception.ErrorEnum;
 import icu.xuyijie.secureapi.exception.SecureApiException;
 import icu.xuyijie.secureapi.model.SecureApiProperties;
@@ -30,7 +31,7 @@ public class DecryptHttpInputMessage implements HttpInputMessage {
         // 一般请求头里的内容不做加密解密处理
         httpHeaders = inputMessage.getHeaders();
         // 数字签名
-        String signature = httpHeaders.getFirst("X-signature");
+        String signature = httpHeaders.getFirst(HeaderConstant.X_SIGNATURE);
         // 取出请求的body
         String content;
         try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputMessage.getBody()))) {

@@ -93,6 +93,12 @@
       "sourceType": "icu.xuyijie.secureapi.model.SecureApiProperties"
     },
     {
+      "name": "secure-api.response-body-data-field",
+      "type": "java.lang.String",
+      "description": "统一返回体中需要加密的data字段名",
+      "sourceType": "icu.xuyijie.secureapi.model.SecureApiProperties"
+    },
+    {
       "name": "secure-api.encrypt-url",
       "type": "icu.xuyijie.secureapi.model.SecureApiProperties$UrlPattern",
       "description": "加密url配置",
