@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import icu.xuyijie.secureapi.annotation.EncryptApi;
 import icu.xuyijie.secureapi.annotation.EncryptIgnore;
+import icu.xuyijie.secureapi.cipher.utils.RsaSignatureUtils;
 import icu.xuyijie.secureapi.model.SecureApiProperties;
 import icu.xuyijie.secureapi.model.SecureApiPropertiesConfig;
 import icu.xuyijie.secureapi.threadlocal.SecureApiThreadLocal;
@@ -19,6 +20,7 @@ import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
+import java.nio.charset.StandardCharsets;
 import java.time.temporal.Temporal;
 import java.util.Date;
 
@@ -34,10 +36,12 @@ public class SecureApiResponseHandler implements ResponseBodyAdvice<Object> {
 
     private final SecureApiPropertiesConfig secureApiPropertiesConfig;
     private final ObjectMapper secureApiObjectMapper;
+    private final RsaSignatureUtils rsaSignatureUtils;
 
-    public SecureApiResponseHandler(SecureApiPropertiesConfig secureApiPropertiesConfig, ObjectMapper secureApiObjectMapper) {
+    public SecureApiResponseHandler(SecureApiPropertiesConfig secureApiPropertiesConfig, ObjectMapper secureApiObjectMapper, RsaSignatureUtils rsaSignatureUtils) {
         this.secureApiPropertiesConfig = secureApiPropertiesConfig;
         this.secureApiObjectMapper = secureApiObjectMapper;
+        this.rsaSignatureUtils = rsaSignatureUtils;
     }
 
     @Override
@@ -62,11 +66,21 @@ public class SecureApiResponseHandler implements ResponseBodyAdvice<Object> {
             }
             boolean checkIsNoNeedObjectMapper = checkIsNoNeedObjectMapper(body);
             String bodyJson = secureApiObjectMapper.writeValueAsString(body);
-            // 有些类型转为json后会使用双引号包裹，给它去掉
-            if (checkIsNoNeedObjectMapper && bodyJson != null) {
+            if (bodyJson == null) {
+                return body;
+            }
+            // 有些类型转为json后会使用双引号包裹，给它去掉 (像时间类型这种，我们想要返回格式化后的时间必须用 secureApiObjectMapper 处理，所以为了方便所有类型都用 mapper 转换一遍)
+            if (checkIsNoNeedObjectMapper) {
                 bodyJson = bodyJson.replaceFirst("\"", "");
                 bodyJson = bodyJson.substring(0, bodyJson.lastIndexOf("\""));
             }
+            if (secureApiPropertiesConfig.isSignEnabled()) {
+                // 为数据生成数字签名
+                String sign = rsaSignatureUtils.sign(bodyJson.getBytes(StandardCharsets.UTF_8));
+                // 设置响应头
+                response.getHeaders().add("X-signature", sign);
+            }
+            // 加密数据
             String encrypt = CipherModeHandler.handleEncryptMode(bodyJson, secureApiPropertiesConfig);
             if (secureApiPropertiesConfig.isShowLog()) {
                 if (SecureApiProperties.Mode.COMMON == secureApiPropertiesConfig.getMode()) {
@@ -88,6 +102,7 @@ public class SecureApiResponseHandler implements ResponseBodyAdvice<Object> {
      * @return 是否 不 需要使用ObjectMapper序列化
      */
     private boolean checkIsNoNeedObjectMapper(Object body) {
+        // 这些非 json 字符串经过 ObjectMapper 序列化后都会在首尾多个引号，后面要去掉才能反序列化成功，数值类型🙅，多了引号只是相当于转换成String了
         return body instanceof String || body instanceof Date || body instanceof Temporal;
     }
 

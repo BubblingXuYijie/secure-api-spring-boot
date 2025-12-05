@@ -32,9 +32,9 @@ public class RsaSignatureUtils {
     private final SecureApiPropertiesConfig secureApiPropertiesConfig;
     private final PublicUtils publicUtils;
 
-    // 改为实例方法而非静态方法，避免静态配置带来的潜在问题
     public RsaSignatureUtils(SecureApiPropertiesConfig secureApiPropertiesConfig) {
         this.secureApiPropertiesConfig = secureApiPropertiesConfig;
+        // 改为实例方法而非静态方法，避免静态配置带来的潜在问题
         this.publicUtils = new PublicUtils(secureApiPropertiesConfig.isUrlSafe());
     }
 
