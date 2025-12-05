@@ -25,12 +25,15 @@ public class SecureKeyInterceptor implements HandlerInterceptor {
     }
 
     @Override
-    public boolean preHandle(HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull Object handler) {
+    public boolean preHandle(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull Object handler) {
         // 这里可以使用会话密钥，只需要在拦截器中修改secureApiPropertiesConfig的key值
         if (secureApiPropertiesConfig.getMode().equals(SecureApiProperties.Mode.SESSION_KEY)) {
             String sessionKey = request.getHeader("sessionKey");
+            String sessionIv = request.getHeader("sessionIv");
             log.info("前端传来会话密钥：{}", sessionKey);
+            log.info("前端传来会话iv：{}", sessionIv);
             secureApiPropertiesConfig.setKey(sessionKey);
+            secureApiPropertiesConfig.setIv(sessionIv);
         }
         return true;
     }
