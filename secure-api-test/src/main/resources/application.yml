@@ -9,6 +9,7 @@ secure-api:
   iv:
   public-key:
   private-key:
+  response-body-data-field:
   encrypt-url:
     include-urls: /**
     exclude-urls: /test,/test2

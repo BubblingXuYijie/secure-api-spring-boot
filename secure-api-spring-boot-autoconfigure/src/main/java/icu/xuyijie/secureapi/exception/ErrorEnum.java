@@ -22,6 +22,7 @@ public enum ErrorEnum {
     KEY_CREATE_ERROR("获取密钥失败"),
     SESSION_MODE_CONFIG_ERROR("会话密钥模式中，必须设置加密算法为RSA，会话密钥算法为非RSA"),
     SIGNATURE_ERROR("数字签名校验失败"),
+    CLASS_LOAD_ERROR("无法加载配置的返回体包路径"),
     ;
 
     private final String message;
