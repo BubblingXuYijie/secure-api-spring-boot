@@ -150,8 +150,8 @@ public class SecureApiResponseHandler implements ResponseBodyAdvice<Object> {
                     return bodyJson;
                 }
                 String dataJsonString = secureApiObjectMapper.writeValueAsString(dataNode);
-                // 还是一样，一些数据类型经过 writeValueAsString 后要处理前后引号
-                if (!dataNode.isNumber() && StringUtils.hasText(dataNode.asText())) {
+                // 还是一样，一些数据类型经过 writeValueAsString 后要处理前后引号，数组等对象dataNode.asText()后是null，因为dataNode无法判断是否是日期，就只能用这种方案了
+                if (!dataNode.isNumber() && !dataNode.isBoolean() && StringUtils.hasText(dataNode.asText())) {
                     dataJsonString = handleIllegelJsonString(dataJsonString);
                 }
                 // 只加密data字段
