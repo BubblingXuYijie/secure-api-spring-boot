@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import icu.xuyijie.secureapi.annotation.EncryptApi;
 import icu.xuyijie.secureapi.annotation.EncryptIgnore;
+import icu.xuyijie.secureapi.cipher.utils.RsaSignatureUtils;
 import icu.xuyijie.secureapi.model.SecureApiProperties;
 import icu.xuyijie.secureapi.model.SecureApiPropertiesConfig;
 import icu.xuyijie.secureapi.threadlocal.SecureApiThreadLocal;
@@ -19,6 +20,7 @@ import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
+import java.nio.charset.StandardCharsets;
 import java.time.temporal.Temporal;
 import java.util.Date;
 
@@ -34,10 +36,12 @@ public class SecureApiResponseHandler implements ResponseBodyAdvice<Object> {
 
     private final SecureApiPropertiesConfig secureApiPropertiesConfig;
     private final ObjectMapper secureApiObjectMapper;
+    private final RsaSignatureUtils rsaSignatureUtils;
 
-    public SecureApiResponseHandler(SecureApiPropertiesConfig secureApiPropertiesConfig, ObjectMapper secureApiObjectMapper) {
+    public SecureApiResponseHandler(SecureApiPropertiesConfig secureApiPropertiesConfig, ObjectMapper secureApiObjectMapper, RsaSignatureUtils rsaSignatureUtils) {
         this.secureApiPropertiesConfig = secureApiPropertiesConfig;
         this.secureApiObjectMapper = secureApiObjectMapper;
+        this.rsaSignatureUtils = rsaSignatureUtils;
     }
 
     @Override
@@ -62,10 +66,19 @@ public class SecureApiResponseHandler implements ResponseBodyAdvice<Object> {
             }
             boolean checkIsNoNeedObjectMapper = checkIsNoNeedObjectMapper(body);
             String bodyJson = secureApiObjectMapper.writeValueAsString(body);
+            if (bodyJson == null) {
+                return body;
+            }
             // 有些类型转为json后会使用双引号包裹，给它去掉
-            if (checkIsNoNeedObjectMapper && bodyJson != null) {
+            if (checkIsNoNeedObjectMapper) {
                 bodyJson = bodyJson.replaceFirst("\"", "");
                 bodyJson = bodyJson.substring(0, bodyJson.lastIndexOf("\""));
+            }
+            if (secureApiPropertiesConfig.isSignEnabled()) {
+                // 为数据生成数字签名
+                String sign = rsaSignatureUtils.sign(bodyJson.getBytes(StandardCharsets.UTF_8));
+                // 设置响应头
+                response.getHeaders().add("X-signature", sign);
             }
             String encrypt = CipherModeHandler.handleEncryptMode(bodyJson, secureApiPropertiesConfig);
             if (secureApiPropertiesConfig.isShowLog()) {
