@@ -79,6 +79,11 @@ public class SecureApiProperties {
     private String signPrivateKey;
 
     /**
+     * 统一返回体中需要加密的 data 字段名
+     */
+    private String responseBodyDataField;
+
+    /**
      * 加密url配置
      */
     private UrlPattern encryptUrl = new UrlPattern();
@@ -246,6 +251,14 @@ public class SecureApiProperties {
 
     public void setSignPrivateKey(String signPrivateKey) {
         this.signPrivateKey = signPrivateKey;
+    }
+
+    public String getResponseBodyDataField() {
+        return responseBodyDataField;
+    }
+
+    public void setResponseBodyDataField(String responseBodyDataField) {
+        this.responseBodyDataField = responseBodyDataField;
     }
 
     public UrlPattern getEncryptUrl() {

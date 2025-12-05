@@ -49,6 +49,7 @@ public class SecureApiAutoConfigure {
         secureApiPropertiesConfig.setPrivateKey(secureApiProperties.getPrivateKey());
         secureApiPropertiesConfig.setSignPublicKey(secureApiProperties.getSignPublicKey());
         secureApiPropertiesConfig.setSignPrivateKey(secureApiProperties.getSignPrivateKey());
+        secureApiPropertiesConfig.setResponseBodyDataField(secureApiProperties.getResponseBodyDataField());
         secureApiPropertiesConfig.setEncryptUrl(secureApiProperties.getEncryptUrl());
         secureApiPropertiesConfig.setDecryptUrl(secureApiProperties.getDecryptUrl());
         secureApiPropertiesConfig.setDateFormat(secureApiProperties.getDateFormat());

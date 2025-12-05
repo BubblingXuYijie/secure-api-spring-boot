@@ -12,6 +12,7 @@ secure-api:
   private-key:
   sign-public-key:
   sign-private-key:
+  response-body-data-field:
   encrypt-url:
     include-urls: /**
     exclude-urls:
