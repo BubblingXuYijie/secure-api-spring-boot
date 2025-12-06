@@ -9,7 +9,10 @@
     <version>${revision}</version>
     <packaging>pom</packaging>
     <name>secure-api-spring-boot</name>
-    <description>一款接口参数和返回值加解密工具，高性能、轻量化，无任何外部依赖；支持 param、body 参数，spring boot 场景启动器设计（支持 2 和 3），完全自动化，用户无需关心加密解密和密钥匹配过程。配置灵活，支持 yml 和 bean 方式，支持注解、url 正则进行接口匹配，支持 AES、SM4、RSA 等多种加密方式，支持 DH 前后端密钥协商方式、支持数字签名校验。</description>
+    <description>一款接口参数和返回值加解密工具，高性能、轻量化，无任何外部依赖；支持 param、body 参数，spring boot 场景启动器设计（支持
+        2 和 3），完全自动化，用户无需关心加密解密和密钥匹配过程。配置灵活，支持 yml 和 bean 方式，支持注解、url 正则进行接口匹配，支持
+        AES、SM4、RSA 等多种加密方式，支持 DH 前后端密钥协商方式、支持数字签名校验。
+    </description>
     <url>https://github.com/BubblingXuYijie/secure-api-spring-boot</url>
 
     <licenses>
@@ -44,8 +47,8 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <revision>3.1.5</revision>
-        <spring-boot.version>3.4.4</spring-boot.version>
+        <revision>3.1.6</revision>
+        <spring-boot.version>3.5.8</spring-boot.version>
     </properties>
 
     <dependencyManagement>
@@ -71,13 +74,24 @@
     </dependencyManagement>
 
     <distributionManagement>
+        <!--        旧版Nexus仓库发布方法 -->
+        <!--        <snapshotRepository>-->
+        <!--            <id>ossrh</id>-->
+        <!--            <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>-->
+        <!--        </snapshotRepository>-->
+        <!--        <repository>-->
+        <!--            <id>ossrh</id>-->
+        <!--            <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>-->
+        <!--        </repository>-->
+
+        <!-- 新版maven central portal发布方法 -->
         <snapshotRepository>
-            <id>ossrh</id>
-            <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
+            <id>central</id>
+            <url>https://ossrh-staging-api.central.sonatype.com/content/repositories/snapshots</url>
         </snapshotRepository>
         <repository>
-            <id>ossrh</id>
-            <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+            <id>central</id>
+            <url>https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/</url>
         </repository>
     </distributionManagement>
 
@@ -143,6 +157,18 @@
                 </executions>
                 <configuration>
                     <doclint>none</doclint>
+                </configuration>
+            </plugin>
+            <!-- 新版maven central portal发布方法需要新增此插件 -->
+            <plugin>
+                <groupId>org.sonatype.central</groupId>
+                <artifactId>central-publishing-maven-plugin</artifactId>
+                <version>0.7.0</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <publishingServerId>central</publishingServerId>
+                    <autoPublish>true</autoPublish>
+                    <waitUntil>published</waitUntil>
                 </configuration>
             </plugin>
             <plugin>

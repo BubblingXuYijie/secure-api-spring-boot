@@ -10,6 +10,7 @@
     </parent>
 
     <artifactId>secure-api-test</artifactId>
+    <name>secure-api-test</name>
 
     <properties>
         <maven.deploy.skip>true</maven.deploy.skip>
