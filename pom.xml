@@ -167,8 +167,9 @@
                 <extensions>true</extensions>
                 <configuration>
                     <publishingServerId>central</publishingServerId>
-                    <autoPublish>true</autoPublish>
-                    <waitUntil>published</waitUntil>
+                    <!-- 这两项配置更安全，可上传到服务器后手动发布 -->
+                    <autoPublish>false</autoPublish>
+                    <waitUntil>validated</waitUntil>
                 </configuration>
             </plugin>
             <plugin>
